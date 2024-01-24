@@ -844,6 +844,11 @@ a {
   margin-top: 3rem;
 }
 
+.source {
+  color: var(--db-dark-grey);
+  margin-bottom: 2rem;
+}
+
 @media screen and (max-width: 991px) {
   .db-button-secondary {
     align-self: center;
