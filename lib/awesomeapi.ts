@@ -71,11 +71,25 @@ interface RawQuote {
 }
 
 async function apiFetch<T>(url: string, revalidate: number): Promise<T> {
-  const res = await fetch(url, {
-    next: { revalidate },
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) throw new Error(`AwesomeAPI ${res.status} em ${url}`);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      next: { revalidate },
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch (err) {
+    // Falha de rede/DNS/timeout — logamos para diagnosticar em produção,
+    // já que o chamador só repassa uma mensagem genérica ao usuário.
+    console.error(`[awesomeapi] fetch falhou em ${url}:`, err);
+    throw err;
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(
+      `[awesomeapi] ${res.status} ${res.statusText} em ${url} — corpo: ${body.slice(0, 300)}`
+    );
+    throw new Error(`AwesomeAPI ${res.status} em ${url}`);
+  }
   return res.json() as Promise<T>;
 }
 

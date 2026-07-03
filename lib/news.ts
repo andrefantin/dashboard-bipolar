@@ -91,7 +91,10 @@ export async function fetchNews(): Promise<NewsItem[]> {
         next: { revalidate: REVALIDATE_NEWS },
         signal: AbortSignal.timeout(8000),
       });
-      if (!res.ok) throw new Error(`Google News RSS ${res.status}`);
+      if (!res.ok) {
+        console.error(`[news] Google News RSS ${res.status} em ${url}`);
+        throw new Error(`Google News RSS ${res.status}`);
+      }
       return parseFeed(await res.text());
     })
   );
