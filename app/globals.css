@@ -1,26 +1,210 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Paleta — verde-carvão profundo, vidro neutro, verde gasto com parcimônia */
+  --color-bg: #0b1210;
+  --color-bg-2: #101a16;
+  --color-ink: #e8edea;
+  --color-ink-2: #9db2a8;
+  --color-ink-3: #7d8f85;
+  --color-pos: #34d399;
+  --color-mint: #a7f3d0;
+  --color-neg: #f87171;
+  --color-warm: #f5b04c;
+  --color-cool: #8fa8ba;
 }
 
+/* Fontes auto-hospedadas via next/font — as vars vêm da classe no <html> */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-clash);
+  --font-body: var(--font-satoshi);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Glows do pano de fundo — o "anel de humor" da página */
+  --glow-a: rgba(52, 211, 153, 0.14);
+  --glow-b: rgba(167, 243, 208, 0.06);
+}
+
+[data-mood="mania"] {
+  --glow-a: rgba(245, 176, 76, 0.14);
+  --glow-b: rgba(52, 211, 153, 0.07);
+}
+[data-mood="agitado"] {
+  --glow-a: rgba(245, 176, 76, 0.1);
+  --glow-b: rgba(52, 211, 153, 0.09);
+}
+[data-mood="baixa"] {
+  --glow-a: rgba(143, 168, 186, 0.12);
+  --glow-b: rgba(52, 211, 153, 0.06);
+}
+[data-mood="depressivo"] {
+  --glow-a: rgba(120, 148, 170, 0.15);
+  --glow-b: rgba(143, 168, 186, 0.07);
+}
+
+html {
+  background-color: var(--color-bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-2) 100%);
+  color: var(--color-ink);
+  font-family: var(--font-satoshi), "Inter", system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+/* Camada fixa de luz atrás de tudo — é ela que faz o vidro parecer vidro */
+.backdrop-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 38% at 28% 8%, var(--glow-a), transparent 70%),
+    radial-gradient(ellipse 45% 32% at 78% 28%, var(--glow-b), transparent 70%);
+  transition: background 1.2s ease;
+}
+
+/* ————— Vidro: exatamente dois níveis de elevação ————— */
+.glass,
+.glass-raised {
+  position: relative;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.glass-raised {
+  background: rgba(255, 255, 255, 0.07);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+/* Borda de 1px com realce no topo, esvaindo para baixo */
+.glass::before,
+.glass-raised::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.02)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glass-raised::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+/* ————— Letreiro de manchetes ————— */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 90s linear infinite;
+}
+
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+  .ticker {
+    overflow-x: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}
+
+/* Modal de notícias sobre vidro */
+dialog::backdrop {
+  background: rgba(5, 9, 8, 0.65);
+  backdrop-filter: blur(6px);
+}
+
+/* Nav rolável no mobile sem barra de rolagem visível */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* No mobile a nav transborda: fade na borda direita sinaliza que rola */
+@media (max-width: 40rem) {
+  .nav-fade {
+    mask-image: linear-gradient(to right, #000 82%, transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+  }
+}
+
+/* Números de cotação não podem "dançar" a cada atualização */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Foco visível para navegação por teclado, sobre vidro escuro.
+   Sem border-radius forçado: o outline segue o raio do próprio elemento. */
+:focus-visible {
+  outline: 2px solid var(--color-pos);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin 1s linear infinite;
 }

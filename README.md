@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dólar Bipolar v2
 
-## Getting Started
+Dashboard em pt-BR que acompanha o câmbio do real frente às principais moedas — companheiro do perfil satírico [@dolarbipolar](https://bsky.app/profile/dolarbipolar.com) no Bluesky.
 
-First, run the development server:
+**Custo de operação: zero.** Sem banco de dados, sem API paga, sem servidor próprio. Tudo roda em free tiers, indefinidamente.
+
+## Funcionalidades
+
+- **Painel de cotações** — USD, EUR, GBP, BTC, CAD, ARS (lote de 100), JPY (lote de 100), KRW (lote de 1000) e AUD, com variação do dia e sparkline de 7 dias.
+- **Índice de Humor do Dólar** — cinco humores calculados da volatilidade dos últimos 30 dias ([lib/mood.ts](lib/mood.ts); limiares e legendas editáveis em constantes). O brilho de fundo da página muda de cor com o humor.
+- **"Por que o dólar está assim?"** — manchetes do Google Notícias; dias com variação acima de ±0,7% ganham marcador no gráfico de 30 dias que filtra as manchetes daquele dia.
+- **Comparação de moedas** — 2 a 4 moedas normalizadas em base 100, períodos de 7d a 1 ano.
+- **Histórico por moeda** — `/moeda/usd`, `/moeda/eur` etc., com mínima/máxima/variação por período.
+
+## Stack
+
+Next.js 15 (App Router) + TypeScript + Tailwind CSS 4 + Recharts, na Vercel (Hobby).
+
+Fontes de dados (via Route Handlers em `app/api/*`, com cache `revalidate`):
+
+| Fonte | Dados | Cache |
+|---|---|---|
+| [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) | cotações (sem chave) | 5 min |
+| AwesomeAPI `/daily` | histórico diário | 6 h |
+| Google News RSS | manchetes (título + fonte + link) | 30 min |
+| [brapi.dev](https://brapi.dev) | Ibovespa (opcional) | 5 min |
+
+## Rodando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev    # http://localhost:3000
+npm run build  # build de produção — funciona sem nenhuma env var
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Variáveis de ambiente (opcionais)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `BRAPI_TOKEN` — token gratuito do brapi.dev para o card do Ibovespa. Sem ele, o card simplesmente não aparece.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Deploy
 
-## Learn More
+```bash
+vercel deploy
+```
 
-To learn more about Next.js, take a look at the following resources:
+Nada mais a configurar.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Mascote por humor
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Coloque variantes em `public/mascote/{mania,agitado,estavel,baixa,depressivo}.png` — enquanto não existirem, o avatar original (`default.webp`) é usado para os cinco humores.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cotações informativas — não é recomendação de investimento.
