@@ -20,7 +20,7 @@ Fontes de dados (via Route Handlers em `app/api/*`, com cache `revalidate`):
 
 | Fonte | Dados | Cache |
 |---|---|---|
-| [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) | cotações (sem chave) | 5 min |
+| [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) | cotações (chave opcional, recomendada) | 5 min |
 | AwesomeAPI `/daily` | histórico diário | 6 h |
 | Google News RSS | manchetes (título + fonte + link) | 30 min |
 | [brapi.dev](https://brapi.dev) | Ibovespa (opcional) | 5 min |
@@ -35,6 +35,7 @@ npm run build  # build de produção — funciona sem nenhuma env var
 
 ### Variáveis de ambiente (opcionais)
 
+- `AWESOMEAPI_TOKEN` — token gratuito ([cadastro](https://awesomeapi.com.br/auth/signup), sem custo) que eleva a cota de 100 mil requisições/mês. **Fortemente recomendado em produção**: o tier anônimo (sem token) tem uma cota bem mais baixa e não documentada, e passa a responder `429 QuotaExceeded` sob uso real. Sem a variável, o site funciona mas fica exposto a esse limite.
 - `BRAPI_TOKEN` — token gratuito do brapi.dev para o card do Ibovespa. Sem ele, o card simplesmente não aparece.
 
 ### Deploy

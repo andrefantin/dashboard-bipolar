@@ -61,6 +61,13 @@ export const REVALIDATE_HISTORY = 21_600; // 6 h
 
 const BASE = "https://economia.awesomeapi.com.br/json";
 
+/** Token gratuito opcional (cadastro em awesomeapi.com.br/auth/signup) —
+ *  sem ele o tier anônimo tem uma cota bem mais baixa e sujeita a 429. */
+function withToken(url: string): string {
+  const token = process.env.AWESOMEAPI_TOKEN;
+  return token ? `${url}?token=${token}` : url;
+}
+
 interface RawQuote {
   code?: string;
   bid: string;
@@ -103,7 +110,7 @@ function sanitizeBid(code: string, bid: number): number {
 export async function fetchLatestRates(): Promise<Rate[]> {
   const pairs = CURRENCIES.map((c) => `${c.code}-BRL`).join(",");
   const data = await apiFetch<Record<string, RawQuote>>(
-    `${BASE}/last/${pairs}`,
+    withToken(`${BASE}/last/${pairs}`),
     REVALIDATE_RATES
   );
   return CURRENCIES.flatMap((c) => {
@@ -128,7 +135,7 @@ export async function fetchLatestRates(): Promise<Rate[]> {
  */
 export async function fetchDailyHistory(code: string, days: number): Promise<DailyPoint[]> {
   const data = await apiFetch<RawQuote[]>(
-    `${BASE}/daily/${code}-BRL/${days}`,
+    withToken(`${BASE}/daily/${code}-BRL/${days}`),
     REVALIDATE_HISTORY
   );
   const seen = new Set<string>();
