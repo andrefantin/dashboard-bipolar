@@ -62,10 +62,12 @@ export const REVALIDATE_HISTORY = 21_600; // 6 h
 const BASE = "https://economia.awesomeapi.com.br/json";
 
 /** Token gratuito opcional (cadastro em awesomeapi.com.br/auth/signup) —
- *  sem ele o tier anônimo tem uma cota bem mais baixa e sujeita a 429. */
-function withToken(url: string): string {
+ *  sem ele o tier anônimo tem uma cota bem mais baixa e sujeita a 429.
+ *  Vai no header `x-api-key`, nunca na URL: URLs aparecem nos nossos logs
+ *  de erro e na lista de chamadas externas dos logs da Vercel. */
+function authHeaders(): HeadersInit | undefined {
   const token = process.env.AWESOMEAPI_TOKEN;
-  return token ? `${url}?token=${token}` : url;
+  return token ? { "x-api-key": token } : undefined;
 }
 
 interface RawQuote {
@@ -81,6 +83,7 @@ async function apiFetch<T>(url: string, revalidate: number): Promise<T> {
   let res: Response;
   try {
     res = await fetch(url, {
+      headers: authHeaders(),
       next: { revalidate },
       signal: AbortSignal.timeout(8000),
     });
@@ -110,7 +113,7 @@ function sanitizeBid(code: string, bid: number): number {
 export async function fetchLatestRates(): Promise<Rate[]> {
   const pairs = CURRENCIES.map((c) => `${c.code}-BRL`).join(",");
   const data = await apiFetch<Record<string, RawQuote>>(
-    withToken(`${BASE}/last/${pairs}`),
+    `${BASE}/last/${pairs}`,
     REVALIDATE_RATES
   );
   return CURRENCIES.flatMap((c) => {
@@ -135,7 +138,7 @@ export async function fetchLatestRates(): Promise<Rate[]> {
  */
 export async function fetchDailyHistory(code: string, days: number): Promise<DailyPoint[]> {
   const data = await apiFetch<RawQuote[]>(
-    withToken(`${BASE}/daily/${code}-BRL/${days}`),
+    `${BASE}/daily/${code}-BRL/${days}`,
     REVALIDATE_HISTORY
   );
   const seen = new Set<string>();
@@ -167,7 +170,9 @@ export async function fetchBovespa(): Promise<BovespaQuote | null> {
   const token = process.env.BRAPI_TOKEN;
   if (!token) return null;
   try {
-    const res = await fetch(`https://brapi.dev/api/quote/%5EBVSP?token=${token}`, {
+    // Token no header (recomendação da própria brapi), fora da URL e dos logs.
+    const res = await fetch("https://brapi.dev/api/quote/%5EBVSP", {
+      headers: { Authorization: `Bearer ${token}` },
       next: { revalidate: REVALIDATE_RATES },
       signal: AbortSignal.timeout(8000),
     });

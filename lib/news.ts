@@ -33,6 +33,9 @@ function parseFeed(xml: string): NewsItem[] {
 
   return items.flatMap((item) => {
     if (!item.title || !item.link || !item.pubDate) return [];
+    // O feed é conteúdo externo e o link vira href: só aceitamos http(s),
+    // nunca javascript:, data: e afins.
+    if (!/^https?:\/\//i.test(item.link)) return [];
     const source =
       typeof item.source === "string" ? item.source : item.source?.["#text"] ?? "";
     // O Google anexa " - Fonte" ao título; removemos para não duplicar.
