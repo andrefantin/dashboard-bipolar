@@ -14,6 +14,33 @@
   --color-neg: #f87171;
   --color-warm: #f5b04c;
   --color-cool: #8fa8ba;
+
+  /* Escala tipográfica do iOS (Apple HIG, Dynamic Type no tamanho padrão).
+     Os pontos da Apple são para a SF Pro; Clash Display e Satoshi são ~7–8%
+     mais largas (medido contra a SF neste Mac), então cada passo vai ~7%
+     menor para render a mesma largura. Entre parênteses: o valor da HIG. */
+  --text-large-title: 2rem; /* 32px (34pt) — só nas telas raiz das abas */
+  --text-large-title--line-height: 1.2;
+  --text-title1: 1.625rem; /* 26px (28pt) */
+  --text-title1--line-height: 1.21;
+  --text-title2: 1.25rem; /* 20px (22pt) — título padrão de tela interna */
+  --text-title2--line-height: 1.27;
+  --text-title3: 1.1875rem; /* 19px (20pt) */
+  --text-title3--line-height: 1.25;
+  --text-headline: 1rem; /* 16px (17pt, semibold) */
+  --text-headline--line-height: 1.3;
+  --text-body: 1rem; /* 16px (17pt) */
+  --text-body--line-height: 1.3;
+  --text-callout: 0.9375rem; /* 15px (16pt) */
+  --text-callout--line-height: 1.32;
+  --text-subhead: 0.875rem; /* 14px (15pt) */
+  --text-subhead--line-height: 1.33;
+  --text-footnote: 0.75rem; /* 12px (13pt) */
+  --text-footnote--line-height: 1.38;
+  --text-caption1: 0.6875rem; /* 11px (12pt) */
+  --text-caption1--line-height: 1.33;
+  --text-caption2: 0.625rem; /* 10px (11pt) — rótulos da barra de abas */
+  --text-caption2--line-height: 1.2;
 }
 
 /* Fontes auto-hospedadas via next/font — as vars vêm da classe no <html> */
@@ -47,6 +74,14 @@
 
 html {
   background-color: var(--color-bg);
+  /* Sem o flash cinza do WebKit ao tocar: o feedback é o :active de cada item */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+a,
+button {
+  touch-action: manipulation;
 }
 
 body {
@@ -120,6 +155,19 @@ body {
   );
 }
 
+/* ————— Barra de abas flutuante (celular) —————
+   Cápsula de vidro solta das bordas, como a barra de abas do iOS 26:
+   o conteúdo rola por trás e aparece desfocado. */
+.tabbar {
+  background: rgba(20, 28, 25, 0.72);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
 /* ————— Letreiro de manchetes ————— */
 @keyframes ticker-scroll {
   from {
@@ -162,6 +210,36 @@ body {
 dialog::backdrop {
   background: rgba(5, 9, 8, 0.65);
   backdrop-filter: blur(6px);
+}
+
+/* .glass-raised põe position: relative, que na top layer vira absolute e
+   ancora o modal no topo do documento: com a página rolada ele abria fora
+   da tela. fixed o prende à viewport (centralizado no desktop, embaixo no
+   celular). */
+dialog.sheet {
+  position: fixed;
+}
+
+/* No celular o modal vira bottom sheet (iOS): colado embaixo, cantos
+   arredondados só no topo, sobe deslizando. No desktop segue centralizado. */
+@media (max-width: 47.99rem) {
+  dialog.sheet {
+    margin: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  dialog.sheet[open] {
+    animation: sheet-up 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
 }
 
 /* Nav rolável no mobile sem barra de rolagem visível */

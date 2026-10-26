@@ -135,35 +135,39 @@ export default function CompareClient() {
         <p className="text-sm text-ink-3" id="selecao-moedas">
           Escolha de {MIN_SELECTED} a {MAX_SELECTED} moedas:
         </p>
+        {/* Celular: uma fileira rolável para o lado (9 chips quebrados em
+            várias linhas empurravam o gráfico para fora da tela). */}
         <div
           role="group"
           aria-labelledby="selecao-moedas"
-          className="mt-3 flex flex-wrap gap-2"
+          className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
         >
           {CURRENCIES.map((c) => {
             const isSelected = selected.includes(c.code);
-            const disabled =
-              (!isSelected && selected.length >= MAX_SELECTED) ||
-              (isSelected && selected.length <= MIN_SELECTED);
+            // Só esmaece o que não dá para adicionar. Selecionadas no mínimo
+            // continuam com cara de selecionadas: o toque só não faz nada.
+            const cantAdd = !isSelected && selected.length >= MAX_SELECTED;
+            const cantRemove = isSelected && selected.length <= MIN_SELECTED;
             return (
               <button
                 key={c.code}
                 type="button"
                 aria-pressed={isSelected}
-                disabled={disabled}
+                aria-disabled={cantRemove || undefined}
+                disabled={cantAdd}
                 title={
-                  disabled
-                    ? isSelected
+                  cantAdd
+                    ? `Máximo de ${MAX_SELECTED} moedas`
+                    : cantRemove
                       ? `Mínimo de ${MIN_SELECTED} moedas`
-                      : `Máximo de ${MAX_SELECTED} moedas`
-                    : undefined
+                      : undefined
                 }
                 onClick={() => toggle(c.code)}
                 style={isSelected ? { color: c.color, backgroundColor: `${c.color}1f` } : undefined}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm transition-colors active:opacity-70 disabled:cursor-not-allowed disabled:opacity-40 ${
                   isSelected
                     ? "font-medium"
-                    : "bg-white/5 text-ink-2 hover:bg-white/10 hover:text-ink"
+                    : "bg-white/5 text-ink-2 md:hover:bg-white/10 md:hover:text-ink"
                 }`}
               >
                 <span

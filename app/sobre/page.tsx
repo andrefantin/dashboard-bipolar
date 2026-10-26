@@ -26,7 +26,12 @@ export default function SobrePage() {
             className="rounded-2xl"
           />
           <div>
-            <h1 className="font-display text-2xl font-medium tracking-tight">Sobre</h1>
+            <h1
+              data-large-title="Sobre"
+              className="font-display text-large-title font-semibold tracking-tight"
+            >
+              Sobre
+            </h1>
             <p className="text-ink-2">
               Dólar Bipolar é um perfil satírico de economia que divulga a cotação do
               dólar no Bluesky.
@@ -52,7 +57,7 @@ export default function SobrePage() {
         </GlassPanel>
 
         <GlassPanel className="space-y-4 p-6 text-ink-2">
-          <h2 className="font-display text-lg font-medium text-ink">
+          <h2 className="font-display text-title3 font-medium text-ink">
             O que move a cotação do dólar
           </h2>
           <p>
@@ -92,7 +97,7 @@ export default function SobrePage() {
         </GlassPanel>
 
         <GlassPanel id="contato" className="space-y-3 p-6 text-ink-2 scroll-mt-24">
-          <h2 className="font-display text-lg font-medium text-ink">Contato</h2>
+          <h2 className="font-display text-title3 font-medium text-ink">Contato</h2>
           <p>O jeito mais rápido de falar com o Dólar Bipolar é pelos perfis:</p>
           <ul className="space-y-1">
             <li>

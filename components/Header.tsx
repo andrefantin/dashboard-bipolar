@@ -1,23 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IconArrowUpRight } from "@tabler/icons-react";
+import { IconArrowUpRight, IconBrandBluesky } from "@tabler/icons-react";
+import NavTitle from "./NavTitle";
 
 export const PROFILE_URL = "https://bsky.app/profile/dolarbipolar.com";
 
+// Só no desktop: no celular a navegação mora na barra de abas inferior (TabBar).
 const NAV = [
-  { href: "/", label: "Home", mobileHidden: false },
-  { href: "/comparar", label: "Comparar", mobileHidden: false },
-  { href: "/duvidas", label: "Dúvidas", mobileHidden: false },
-  { href: "/sobre", label: "Sobre", mobileHidden: false },
-  // Contato mora dentro de /sobre — no mobile a nav não precisa dos dois
-  { href: "/sobre#contato", label: "Contato", mobileHidden: true },
+  { href: "/", label: "Home" },
+  { href: "/comparar", label: "Comparar" },
+  { href: "/duvidas", label: "Dúvidas" },
+  { href: "/sobre", label: "Sobre" },
+  { href: "/sobre#contato", label: "Contato" },
 ];
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-20 border-b border-white/5 bg-bg/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+    <header className="sticky top-0 z-20 border-b border-white/5 bg-bg/75 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+      <div className="relative mx-auto flex h-[52px] max-w-6xl items-center gap-3 px-4 sm:px-6">
+        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Dólar Bipolar: início">
           <Image
             src="/mascote/default.webp"
             alt=""
@@ -25,21 +26,18 @@ export default function Header() {
             height={28}
             className="rounded-full"
           />
-          <span className="font-display text-lg font-semibold tracking-tight">
-            Dólar Bipolar
-          </span>
+          <NavTitle />
         </Link>
+
         <nav
           aria-label="Navegação principal"
-          className="no-scrollbar nav-fade ml-auto flex items-center gap-1 overflow-x-auto text-sm"
+          className="ml-auto hidden items-center gap-1 text-sm md:flex"
         >
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-ink-2 transition-colors hover:bg-white/5 hover:text-ink ${
-                item.mobileHidden ? "hidden sm:block" : ""
-              }`}
+              className="whitespace-nowrap rounded-lg px-2.5 py-1.5 text-ink-2 transition-colors hover:bg-white/5 hover:text-ink"
             >
               {item.label}
             </Link>
@@ -50,11 +48,21 @@ export default function Header() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-0.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-pos transition-colors hover:bg-pos/10"
           >
-            <span className="hidden sm:inline">Ir para perfil</span>
-            <span className="sm:hidden">Perfil</span>
+            Ir para perfil
             <IconArrowUpRight size={14} aria-hidden="true" />
           </a>
         </nav>
+
+        {/* Celular: atalho para o perfil no canto, como um botão de barra do iOS */}
+        <a
+          href={PROFILE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ir para o perfil no Bluesky"
+          className="-mr-2 ml-auto flex h-11 w-11 items-center justify-center rounded-full text-pos transition-opacity active:opacity-60 md:hidden"
+        >
+          <IconBrandBluesky size={22} aria-hidden="true" />
+        </a>
       </div>
     </header>
   );

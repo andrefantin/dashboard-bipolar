@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
 import { BorderBeam } from "border-beam";
 import {
   IconArrowUpRight,
   IconChartLine,
+  IconChevronRight,
   IconNews,
   IconX,
 } from "@tabler/icons-react";
@@ -88,28 +89,94 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
   };
   const closeModal = () => dialogRef.current?.close();
 
-  return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      {/* Mobile: só a manchete mais recente, estática — letreiro em tela
-          pequena vira fragmento ilegível e alvo de toque em movimento. */}
-      {tickerItems.length > 0 && (
-        <a
-          href={tickerItems[0].url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="min-w-0 py-1 text-sm text-ink-2 transition-colors hover:text-ink sm:hidden"
-        >
-          <span className="mr-2 text-xs font-medium uppercase tracking-wide text-ink-3">
-            {tickerItems[0].source}
-          </span>
-          <span className="line-clamp-2">{tickerItems[0].title}</span>
-        </a>
-      )}
+  // No celular o modal é um bottom sheet: arrastar o "grabber" para baixo
+  // fecha, como no iOS. Soltando antes de 110px, ele volta ao lugar.
+  const drag = useRef<{ startY: number; dy: number } | null>(null);
+  const onGrabStart = (e: ReactPointerEvent<HTMLDivElement>) => {
+    drag.current = { startY: e.clientY, dy: 0 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (dialogRef.current) dialogRef.current.style.transition = "none";
+  };
+  const onGrabMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    const el = dialogRef.current;
+    if (!d || !el) return;
+    d.dy = Math.max(0, e.clientY - d.startY);
+    el.style.transform = `translateY(${d.dy}px)`;
+  };
+  const onGrabEnd = () => {
+    const d = drag.current;
+    const el = dialogRef.current;
+    drag.current = null;
+    if (!el) return;
+    el.style.transition = "transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)";
+    if (d && d.dy > 110) {
+      el.style.transform = "translateY(100%)";
+      window.setTimeout(() => {
+        el.close();
+        el.style.transform = "";
+        el.style.transition = "";
+      }, 250);
+    } else {
+      el.style.transform = "";
+    }
+  };
 
-      {/* Letreiro (só em telas ≥ sm) */}
+  return (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center">
+      {/* Celular: cards de manchete roláveis para o lado (letreiro em tela
+          pequena vira fragmento ilegível e alvo de toque em movimento). */}
+      <div className="md:hidden">
+        <div className="flex items-center justify-between">
+          <h2 className="text-footnote font-medium uppercase tracking-wider text-ink-3">Notícias</h2>
+          {news.length > 0 && (
+            <button
+              type="button"
+              onClick={openModal}
+              className="-mr-2 min-h-11 px-2 text-body text-pos active:opacity-60"
+            >
+              Ver tudo
+            </button>
+          )}
+        </div>
+        {news.length > 0 ? (
+          <ul
+            aria-label="Últimas manchetes sobre o dólar"
+            className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4"
+          >
+            {news.slice(0, 8).map((item) => (
+              <li key={item.url} className="w-[78%] max-w-xs shrink-0 snap-start">
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-full flex-col justify-between gap-3 rounded-2xl bg-white/[0.045] p-4 transition-colors active:bg-white/[0.08]"
+                >
+                  <span className="line-clamp-3 text-callout text-ink">{item.title}</span>
+                  <span className="truncate text-xs text-ink-3">
+                    <span className="font-medium text-ink-2">{item.source}</span>
+                    {" · "}
+                    <time dateTime={item.publishedAt} suppressHydrationWarning>
+                      {relativeTime(item.publishedAt)}
+                    </time>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-ink-3">
+            {newsFailed
+              ? "As manchetes não chegaram — o dólar segue inexplicado."
+              : "Sem manchetes por enquanto."}
+          </p>
+        )}
+      </div>
+
+      {/* Letreiro (só no desktop) */}
       {tickerItems.length > 0 ? (
         <div
-          className="ticker hidden min-w-0 flex-1 sm:block"
+          className="ticker hidden min-w-0 flex-1 md:block"
           aria-label="Últimas manchetes sobre o dólar"
         >
           <div
@@ -143,7 +210,7 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
           </div>
         </div>
       ) : (
-        <p className="min-w-0 flex-1 truncate py-1.5 text-sm text-ink-3">
+        <p className="hidden min-w-0 flex-1 truncate py-1.5 text-sm text-ink-3 md:block">
           {newsFailed
             ? "As manchetes não chegaram — o dólar segue inexplicado."
             : "Sem manchetes por enquanto."}
@@ -154,7 +221,10 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
           abertura e depois se apaga (active={false} não renderiza camadas).
           O wrapper do BorderBeam tem overflow:hidden, então a sombra do
           vidro mora nele, não no botão. Sob prefers-reduced-motion o feixe
-          some por completo; o ícone esmeralda e o rótulo seguem como pista. */}
+          some por completo; o ícone esmeralda e o rótulo seguem como pista.
+          Celular: linha de largura total com chevron (célula do iOS);
+          desktop: a pílula compacta ao lado do letreiro. Um só elemento,
+          então um só feixe. */}
       <BorderBeam
         size="pulse-inner"
         colorVariant="forest"
@@ -164,38 +234,48 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
         theme="dark"
         borderRadius={16}
         active={!hasOpened}
-        className="shrink-0 self-start"
+        className="w-full shrink-0 md:w-auto md:self-start"
         style={{ boxShadow: "0 8px 32px rgba(0, 0, 0, 0.35)" }}
       >
         <button
           type="button"
           onClick={openModal}
-          className="glass flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium text-ink-2 shadow-none! transition-colors hover:text-ink"
+          className="glass flex w-full items-center gap-3 px-4 py-3.5 text-left text-body font-medium text-ink shadow-none! transition-colors active:opacity-70 md:w-auto md:justify-center md:gap-2 md:px-3.5 md:py-2.5 md:text-sm md:text-ink-2 md:hover:text-ink"
         >
-          <IconChartLine size={16} aria-hidden="true" className="text-pos" />
-          <span className="hidden md:inline">Por que o dólar está assim?</span>
-          <span className="md:hidden">Entenda o dólar</span>
+          <IconChartLine size={18} aria-hidden="true" className="shrink-0 text-pos" />
+          Por que o dólar está assim?
+          <IconChevronRight size={18} aria-hidden="true" className="ml-auto text-ink-3 md:hidden" />
         </button>
       </BorderBeam>
 
-      {/* Modal com gráfico + manchetes por dia */}
+      {/* Modal com gráfico + manchetes por dia (bottom sheet no celular) */}
       <dialog
         ref={dialogRef}
         aria-label="Por que o dólar está assim?"
-        className="glass-raised m-auto w-[min(94vw,44rem)] bg-transparent p-0 text-ink backdrop:bg-transparent"
+        className="sheet glass-raised m-auto w-[min(94vw,44rem)] bg-transparent p-0 text-ink backdrop:bg-transparent"
         onClick={(e) => {
           if (e.target === dialogRef.current) closeModal();
         }}
       >
+        <div
+          aria-hidden="true"
+          onPointerDown={onGrabStart}
+          onPointerMove={onGrabMove}
+          onPointerUp={onGrabEnd}
+          onPointerCancel={onGrabEnd}
+          className="flex h-6 cursor-grab touch-none items-center justify-center md:hidden"
+        >
+          <span className="h-[5px] w-9 rounded-full bg-white/25" />
+        </div>
         {hasOpened && (
-        <div className="max-h-[85dvh] overflow-y-auto p-5 sm:p-6">
+        <div className="max-h-[85dvh] overflow-y-auto px-5 pb-5 pt-1 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-ink-3">
                 <IconNews size={14} aria-hidden="true" />
                 Notícias
               </p>
-              <h2 className="mt-1 font-display text-lg font-medium">
+              <h2 className="mt-1 text-headline font-semibold">
                 Por que o dólar está assim?
               </h2>
               <p className="mt-1 text-sm text-ink-3">

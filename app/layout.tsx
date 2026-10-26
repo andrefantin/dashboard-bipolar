@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import Header, { PROFILE_URL } from "@/components/Header";
 import Footer from "@/components/Footer";
+import TabBar from "@/components/TabBar";
 import JsonLd from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
 
@@ -65,10 +66,24 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
+  // Declarar `icons` desliga o <link rel="icon"> automático do app/icon.png,
+  // então o favicon vai explícito junto com o ícone do iPhone.
+  icons: {
+    icon: [{ url: "/icon.png", sizes: "32x32", type: "image/png" }],
+    apple: "/icons/180",
+  },
+  // "Adicionar à Tela de Início" no iPhone abre como app, em tela cheia
+  appleWebApp: {
+    capable: true,
+    title: "Dólar Bipolar",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#0b1210",
+  // conteúdo vai até as bordas; header e TabBar compensam com env(safe-area-inset-*)
+  viewportFit: "cover",
 };
 
 const ORGANIZATION_SCHEMA = {
@@ -97,14 +112,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${clashDisplay.variable} ${satoshi.variable}`}>
-      <body className="antialiased flex min-h-dvh flex-col">
+      {/* pb no celular: espaço para a TabBar flutuante
+          (cápsula de 64px + 10px de folga + 10px de respiro + área segura) */}
+      <body className="antialiased flex min-h-dvh flex-col pb-[calc(84px+env(safe-area-inset-bottom))] md:pb-0">
         <JsonLd data={ORGANIZATION_SCHEMA} />
         <JsonLd data={WEBSITE_SCHEMA} />
         <Header />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 sm:px-6">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-12 sm:px-6 md:pb-16">
           {children}
         </main>
         <Footer />
+        <TabBar />
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ZFJVEXNH6X"

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconChevronLeft } from "@tabler/icons-react";
 import {
   CURRENCIES,
   fetchDailyHistory,
@@ -101,25 +101,39 @@ export default async function CurrencyPage({
         />
       )}
 
-      <nav className="pt-6 text-sm" aria-label="Voltar">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-ink-2 hover:text-ink">
-          <IconArrowLeft size={16} aria-hidden="true" />
-          Todas as moedas
+      {/* Botão "voltar" do iOS: chevron + nome da tela anterior, na cor de destaque */}
+      <nav className="flex items-center justify-between pt-2 md:pt-6" aria-label="Voltar">
+        <Link
+          href="/"
+          className="-ml-2 inline-flex min-h-11 items-center gap-0.5 px-1 text-body text-pos transition-opacity active:opacity-60 md:text-sm md:hover:underline"
+        >
+          <IconChevronLeft size={24} stroke={2.2} aria-hidden="true" className="md:h-4 md:w-4" />
+          Cotações
         </Link>
+        <RefreshButton />
       </nav>
 
-      <section className="flex flex-wrap items-end justify-between gap-4 py-6">
+      <section className="pb-6 pt-2 md:pt-4">
         <div>
           <div className="flex items-center gap-3">
             <CurrencyIcon symbol={meta.symbol} color={meta.color} size={44} />
-            <div>
-              <h1 className="font-display text-xl font-medium sm:text-2xl">{meta.nome}</h1>
-              <p className="text-xs text-ink-3">{meta.loteLabel ?? meta.code}</p>
+            {/* Tela interna (empilhada sobre Cotações): título padrão (Title 2),
+                não Large Title — esse fica só nas telas raiz das abas. */}
+            <div className="min-w-0">
+              <h1
+                data-large-title={meta.nome}
+                className="font-display text-title2 font-semibold tracking-tight"
+              >
+                {meta.nome}
+              </h1>
+              <p className="text-footnote text-ink-3">
+                {meta.code}/BRL{meta.loteLabel && ` · ${meta.loteLabel.toLowerCase()}`}
+              </p>
             </div>
           </div>
           {rate ? (
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="tabular font-display text-5xl font-semibold leading-none sm:text-6xl">
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl">
                 {formatBRL(rate.bid * meta.lote, meta.decimals)}
               </span>
               <DeltaChip pct={rate.pctChange} large />
@@ -130,14 +144,13 @@ export default async function CurrencyPage({
             </p>
           )}
           {rate && (
-            <p className="tabular mt-3 text-sm text-ink-3">
+            <p className="tabular mt-3 text-subhead text-ink-3">
               Mín {formatBRL(rate.low * meta.lote, meta.decimals)} · Máx{" "}
               {formatBRL(rate.high * meta.lote, meta.decimals)} · Atualizado às{" "}
               {formatTime(new Date(rate.timestamp))}
             </p>
           )}
         </div>
-        <RefreshButton />
       </section>
 
       {series.length > 1 ? (

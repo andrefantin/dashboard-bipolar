@@ -27,12 +27,13 @@ const MOOD_TONE: Record<string, string> = {
   depressivo: "text-cool/90",
 };
 
-/** Metade "humor" do herói da home — sem painel próprio, vive dentro dele. */
+/** Conteúdo do card de humor (estilo widget do iOS); o painel de vidro
+ *  em volta é da página. */
 export default function MoodCard({ mood, series }: MoodCardProps) {
   const bids = series.map((p) => p.bid);
 
   return (
-    <div className="flex h-full flex-col justify-between gap-4">
+    <div className="flex h-full flex-col justify-between gap-5">
       <div className="flex items-center gap-4">
         <Image
           src={mascotSrc(mood.id)}
@@ -47,7 +48,7 @@ export default function MoodCard({ mood, series }: MoodCardProps) {
             Índice de Humor do Dólar
           </p>
           <h2
-            className={`font-display text-xl font-medium leading-tight sm:text-2xl ${MOOD_TONE[mood.id]}`}
+            className={`font-display text-title3 font-medium ${MOOD_TONE[mood.id]}`}
           >
             {mood.label}
           </h2>
@@ -55,17 +56,23 @@ export default function MoodCard({ mood, series }: MoodCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-        <span className="flex items-center gap-2 text-ink-3">
-          Hoje <DeltaChip pct={mood.todayChange} />
-        </span>
-        <span className="text-ink-3">
-          Volatilidade 30d{" "}
-          <span className="tabular text-ink-2">{formatNumber(mood.volatility)} p.p.</span>
-        </span>
+      {/* Rótulo em cima, valor embaixo: cabe em uma linha até 360px */}
+      <div className="flex items-end gap-6">
+        <dl className="flex gap-6 text-sm">
+          <div>
+            <dt className="text-xs text-ink-3">Hoje</dt>
+            <dd className="mt-1">
+              <DeltaChip pct={mood.todayChange} />
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-ink-3">Volatilidade 30d</dt>
+            <dd className="tabular mt-1 text-ink-2">{formatNumber(mood.volatility)} p.p.</dd>
+          </div>
+        </dl>
         {bids.length > 1 && (
           <span className="ml-auto" aria-label="Evolução do dólar nos últimos 30 dias">
-            <Sparkline data={bids} width={110} height={30} />
+            <Sparkline data={bids} width={88} height={30} />
           </span>
         )}
       </div>

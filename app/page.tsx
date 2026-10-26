@@ -92,46 +92,52 @@ export default async function HomePage() {
         />
       )}
 
-      {/* Herói: um número grande por tela — o resto fala baixo */}
-      <section className="glass-raised mt-8 grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_1fr] lg:gap-10">
-        <div>
-          <h1 className="text-xs font-medium uppercase tracking-widest text-ink-3">
-            Cotação do dólar hoje
-          </h1>
+      {/* Título grande (iOS): ao rolar, recolhe para a barra de cima (NavTitle) */}
+      <div className="flex items-center justify-between gap-4 pt-5 md:pt-8">
+        <h1
+          data-large-title="Dólar hoje"
+          className="font-display text-large-title font-semibold tracking-tight"
+        >
+          Dólar hoje
+        </h1>
+        <RefreshButton />
+      </div>
+
+      <section className="mt-2 grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:gap-6">
+        {/* Cotação sem caixa, como no app Ações: um número grande, o resto baixo */}
+        <div className="lg:py-2">
+          <p className="text-footnote text-ink-3">Cotação do dólar comercial · USD/BRL</p>
           {usd ? (
             <>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="tabular font-display text-5xl font-semibold leading-none sm:text-6xl">
+              {/* O número-herói fica fora da escala de títulos: 40px é maior
+                  que o Large Title (para ser o centro da tela) sem gritar. */}
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl">
                   {formatBRL(usd.bid, 2)}
                 </span>
                 <DeltaChip pct={usd.pctChange} large />
               </div>
-              <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-ink-3">
-                <span className="tabular">
-                  Mín {formatBRL(usd.low, 2)} · Máx {formatBRL(usd.high, 2)}
-                  {updatedAt && <> · Atualizado às {updatedAt}</>}
-                </span>
-                <RefreshButton />
-                <Link
-                  href="/moeda/usd"
-                  className="inline-flex items-center gap-0.5 text-ink-2 transition-colors hover:text-ink"
-                >
-                  Ver histórico
-                  <IconChevronRight size={15} aria-hidden="true" />
-                </Link>
-              </div>
+              <p className="tabular mt-3 text-subhead text-ink-3">
+                Mín {formatBRL(usd.low, 2)} · Máx {formatBRL(usd.high, 2)}
+                {updatedAt && <> · Atualizado às {updatedAt}</>}
+              </p>
+              <Link
+                href="/moeda/usd"
+                className="mt-1 inline-flex min-h-11 items-center gap-0.5 text-body text-pos transition-opacity active:opacity-60 md:hover:underline"
+              >
+                Ver histórico
+                <IconChevronRight size={16} aria-hidden="true" />
+              </Link>
             </>
           ) : (
-            <p className="mt-3 max-w-sm text-ink-2">
-              O dólar recusou-se a responder. Use o “Atualizar” em alguns instantes.
-              <span className="mt-3 block">
-                <RefreshButton />
-              </span>
+            <p className="mt-2 max-w-sm text-ink-2">
+              O dólar recusou-se a responder. Toque em atualizar em alguns instantes.
             </p>
           )}
         </div>
 
-        <div className="border-t border-white/5 pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+        {/* Humor como widget do iOS */}
+        <div className="glass p-5 sm:p-6">
           {mood && usdSeries ? (
             <MoodCard mood={mood} series={usdSeries} />
           ) : (
@@ -147,39 +153,39 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Manchetes em letreiro, coladas ao herói; a análise vive num modal */}
-      <div className="mt-4 px-6 sm:px-0">
+      {/* Manchetes logo abaixo do herói; a análise abre num sheet/modal */}
+      <section aria-label="Notícias" className="mt-8">
         <NewsExplainer
           news={news ?? []}
           series={usdSeries ?? []}
           newsFailed={news === null}
         />
-      </div>
+      </section>
 
-      {/* Painel de moedas: lista aberta, sem caixa */}
-      <section aria-label="Painel de cotações" className="mt-10">
-        <h2 className="px-6 text-xs font-medium uppercase tracking-widest text-ink-3 sm:px-8">
+      {/* Moedas: lista agrupada do iOS, separadores recuados depois do ícone.
+          A primeira linha (no desktop largo, as duas da primeira fileira)
+          não leva separador. */}
+      <section aria-labelledby="moedas-titulo" className="mt-8">
+        <h2
+          id="moedas-titulo"
+          className="mb-2 text-footnote font-medium uppercase tracking-wider text-ink-3"
+        >
           Moedas
         </h2>
         {rates ? (
-          <div className="mt-2 grid gap-x-10 lg:grid-cols-2">
+          <div className="glass overflow-hidden lg:grid lg:grid-cols-2 [&>*:first-child_.row-sep]:border-t-0 lg:[&>*:nth-child(2)_.row-sep]:border-t-0">
             {BOARD_CURRENCIES.map((meta) => (
-              <div key={meta.code} className="border-b border-white/5">
-                <RateRow
-                  meta={meta}
-                  rate={rates.find((r) => r.code === meta.code)}
-                  spark={sparks.get(meta.code)}
-                />
-              </div>
+              <RateRow
+                key={meta.code}
+                meta={meta}
+                rate={rates.find((r) => r.code === meta.code)}
+                spark={sparks.get(meta.code)}
+              />
             ))}
-            {bovespa && (
-              <div className="border-b border-white/5">
-                <BovespaRow quote={bovespa} />
-              </div>
-            )}
+            {bovespa && <BovespaRow quote={bovespa} />}
           </div>
         ) : (
-          <p className="mt-2 px-6 text-sm text-ink-2 sm:px-8">
+          <p className="text-sm text-ink-2">
             Nenhuma cotação chegou. O mercado está de castigo — tente atualizar.
           </p>
         )}

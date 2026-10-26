@@ -67,8 +67,11 @@ export default function DuvidasPage() {
           <p className="text-xs font-medium uppercase tracking-widest text-ink-3">
             Perguntas frequentes
           </p>
-          <h1 className="mt-1 font-display text-2xl font-medium tracking-tight sm:text-3xl">
-            Dúvidas sobre o dólar e o câmbio
+          <h1
+            data-large-title="Dúvidas"
+            className="mt-1 font-display text-large-title font-semibold tracking-tight"
+          >
+            Dúvidas sobre o dólar
           </h1>
           <p className="mt-2 text-sm text-ink-2">
             Respostas diretas, sem economês — e com a dose regulamentar de ironia.
@@ -78,7 +81,7 @@ export default function DuvidasPage() {
         <div className="mt-8 space-y-8">
           {FAQS.map(({ q, a }) => (
             <section key={q}>
-              <h2 className="font-display text-lg font-medium">{q}</h2>
+              <h2 className="font-display text-title3 font-medium">{q}</h2>
               <p className="mt-2 leading-relaxed text-ink-2">{a}</p>
             </section>
           ))}
