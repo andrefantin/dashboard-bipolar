@@ -114,7 +114,6 @@ export default async function HomePage() {
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <span
                   className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl"
-                  data-vt-price="usd"
                 >
                   {formatBRL(usd.bid, 2)}
                 </span>

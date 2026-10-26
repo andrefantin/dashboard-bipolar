@@ -2,8 +2,11 @@
 //   push — a tela nova entra pela direita (lista → moeda)
 //   pop  — a tela atual sai pela direita (moeda → lista)
 //   tab  — troca de aba: só um fade curto (o iOS não desliza entre abas)
-// O ícone e o preço da moeda tocada "viajam" entre a linha da lista e o
-// cabeçalho da página da moeda (elemento compartilhado).
+// O ícone da moeda tocada "viaja" entre a linha da lista e o cabeçalho da
+// página da moeda (elemento compartilhado). O preço não: na linha ele é
+// Satoshi 16px à direita, no cabeçalho Clash 40px à esquerda — o navegador
+// escala um *instantâneo*, então o número esticava 2,5× trocando de fonte e
+// cruzava a tela na diagonal. Só morfa o que é igual nas duas pontas.
 //
 // O navegador captura a tela antiga, chama nosso callback e espera a promessa
 // dele resolver para capturar a nova. Quem resolve é o NavigationTransitions,
@@ -19,9 +22,9 @@ interface Pending {
 
 let pending: Pending | null = null;
 
-const SHARED = ["icon", "price"] as const;
+const SHARED = ["icon"] as const;
 
-/** Dá `view-transition-name` só ao ícone e ao preço da moeda que viaja.
+/** Dá `view-transition-name` só ao ícone da moeda que viaja.
  *  Se todas as linhas tivessem nome, cada ícone viraria uma camada
  *  separada e ficaria parado enquanto a página desliza. */
 function nameSharedElements(currency?: string) {
@@ -83,9 +86,7 @@ export function completeNavigationTransition() {
   if (p.nav === "pop" && p.currency) {
     // Voltando para a lista: centraliza a linha de onde viemos, para o ícone
     // pousar no lugar certo (e o usuário não perder onde estava).
-    const target =
-      document.querySelector<HTMLElement>(`[data-vt-icon="${p.currency}"]`) ??
-      document.querySelector<HTMLElement>(`[data-vt-price="${p.currency}"]`);
+    const target = document.querySelector<HTMLElement>(`[data-vt-icon="${p.currency}"]`);
     target?.scrollIntoView({ block: "center" });
   }
   nameSharedElements(p.currency); // tela nova: nomes antes da captura

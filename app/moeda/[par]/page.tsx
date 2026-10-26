@@ -137,7 +137,6 @@ export default async function CurrencyPage({
             <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
               <span
                 className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl"
-                data-vt-price={meta.slug}
               >
                 {formatBRL(rate.bid * meta.lote, meta.decimals)}
               </span>

@@ -171,8 +171,8 @@ body {
 /* ————— Transições de página (View Transitions API; ver lib/navTransition) —————
    Barras fixas ganham camada própria e ficam paradas enquanto a página
    desliza por baixo, como no iOS. Celular: push/pop deslizam; desktop e
-   troca de aba: fade curto. O ícone e o preço da moeda tocada se movem e
-   escalam entre a linha e o cabeçalho (cur-icon / cur-price). */
+   troca de aba: fade curto. O ícone da moeda tocada se move e escala entre
+   a linha e o cabeçalho (cur-icon); o preço vai junto com a página. */
 :root {
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -203,8 +203,7 @@ body {
   animation-duration: 0.2s;
 }
 
-::view-transition-group(cur-icon),
-::view-transition-group(cur-price) {
+::view-transition-group(cur-icon) {
   animation-duration: 0.38s;
   animation-timing-function: var(--ease-ios);
 }

@@ -60,7 +60,7 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
           />
         )}
         <span className="flex flex-col items-end gap-1">
-          <span className="tabular text-body leading-none" data-vt-price={meta.slug}>
+          <span className="tabular text-body leading-none">
             {value !== null ? formatBRL(value, meta.decimals) : "—"}
           </span>
           {pct !== null ? (
