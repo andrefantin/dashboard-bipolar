@@ -36,8 +36,23 @@ export default function TabBar() {
   const pathname = usePathname();
 
   return (
-    // A faixa inteira ignora toques; só a cápsula os recebe, então o que
-    // aparece dos lados dela continua clicável.
+    <>
+    {/* Desfoque progressivo por trás da barra (ver .scroll-edge-bottom).
+        Decorativo e transparente a toques. Fica abaixo da barra (z-30) e
+        acima do conteúdo. */}
+    <div
+      aria-hidden="true"
+      className="scroll-edge-bottom pointer-events-none fixed inset-x-0 bottom-0 z-[25] md:hidden"
+    >
+      <div className="blur-1" />
+      <div className="blur-2" />
+      <div className="blur-3" />
+      <div className="blur-4" />
+      <div className="blur-5" />
+      <div className="tint" />
+    </div>
+    {/* A faixa inteira ignora toques; só a cápsula os recebe, então o que
+        aparece dos lados dela continua clicável. */}
     <nav
       aria-label="Navegação principal"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] md:hidden"
@@ -63,5 +78,6 @@ export default function TabBar() {
         })}
       </ul>
     </nav>
+    </>
   );
 }

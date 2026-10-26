@@ -168,6 +168,72 @@ body {
     0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* ————— Desfoque progressivo atrás da barra de abas (celular) —————
+   O "scroll edge effect" do iOS: o conteúdo vai ficando mais desfocado à
+   medida que entra por baixo da barra, sem borda dura. backdrop-filter não
+   varia de intensidade, então são 5 camadas empilhadas — cada uma com o
+   dobro do desfoque da anterior, recortada por máscara numa faixa que se
+   sobrepõe à vizinha — mais um véu escuro que garante a leitura dos rótulos.
+   160px de altura: o desfoque forte (8–16px) começa ~100px acima da borda,
+   logo acima do topo da barra (76px). */
+.scroll-edge-bottom {
+  height: calc(160px + env(safe-area-inset-bottom));
+}
+
+.scroll-edge-bottom > div {
+  position: absolute;
+  inset: 0;
+}
+
+.scroll-edge-bottom > .blur-1 {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 12.5%, #000 25%, transparent 37.5%);
+}
+.scroll-edge-bottom > .blur-2 {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%);
+  mask-image: linear-gradient(to bottom, transparent 12.5%, #000 25%, #000 37.5%, transparent 50%);
+}
+.scroll-edge-bottom > .blur-3 {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%);
+  mask-image: linear-gradient(to bottom, transparent 25%, #000 37.5%, #000 50%, transparent 62.5%);
+}
+.scroll-edge-bottom > .blur-4 {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%);
+  mask-image: linear-gradient(to bottom, transparent 37.5%, #000 50%, #000 62.5%, transparent 75%);
+}
+.scroll-edge-bottom > .blur-5 {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 50%, #000 62.5%);
+  mask-image: linear-gradient(to bottom, transparent 50%, #000 62.5%);
+}
+.scroll-edge-bottom > .tint {
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 18, 16, 0) 0%,
+    rgba(11, 18, 16, 0.45) 55%,
+    rgba(11, 18, 16, 0.8) 100%
+  );
+}
+
+/* Quem pediu menos transparência no sistema recebe só o véu, mais denso */
+@media (prefers-reduced-transparency: reduce) {
+  .scroll-edge-bottom > [class^="blur-"] {
+    display: none;
+  }
+  .scroll-edge-bottom > .tint {
+    background: linear-gradient(to bottom, rgba(11, 18, 16, 0) 0%, rgba(11, 18, 16, 0.95) 55%);
+  }
+}
+
 /* ————— Letreiro de manchetes ————— */
 @keyframes ticker-scroll {
   from {

@@ -112,9 +112,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${clashDisplay.variable} ${satoshi.variable}`}>
-      {/* pb no celular: espaço para a TabBar flutuante
-          (cápsula de 64px + 10px de folga + 10px de respiro + área segura) */}
-      <body className="antialiased flex min-h-dvh flex-col pb-[calc(84px+env(safe-area-inset-bottom))] md:pb-0">
+      {/* pb no celular: espaço para a TabBar flutuante e o desfoque atrás dela.
+          104px deixa o fim da página acima do desfoque forte, que começa ~100px
+          acima da borda; só a faixa mais leve (1–2px) toca o último conteúdo. */}
+      <body className="antialiased flex min-h-dvh flex-col pb-[calc(104px+env(safe-area-inset-bottom))] md:pb-0">
         <JsonLd data={ORGANIZATION_SCHEMA} />
         <JsonLd data={WEBSITE_SCHEMA} />
         <Header />
