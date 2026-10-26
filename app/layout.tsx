@@ -5,6 +5,7 @@ import "./globals.css";
 import Header, { PROFILE_URL } from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import { SITE_URL } from "@/lib/site";
 
 // Fontes auto-hospedadas (Fontshare/ITF) — sem CSS de terceiros no caminho crítico
 const clashDisplay = localFont({
@@ -27,8 +28,6 @@ const satoshi = localFont({
   display: "swap",
   fallback: ["Inter", "system-ui", "sans-serif"],
 });
-
-const SITE_URL = "https://dolarbipolar.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -9,6 +9,7 @@ import {
   getCurrency,
 } from "@/lib/awesomeapi";
 import { formatBRL, formatTime } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 import Backdrop from "@/components/Backdrop";
 import CurrencyDetail from "@/components/CurrencyDetail";
 import CurrencyIcon from "@/components/CurrencyIcon";
@@ -74,12 +75,12 @@ export default async function CurrencyPage({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://dolarbipolar.com" },
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
             {
               "@type": "ListItem",
               position: 2,
               name: meta.nome,
-              item: `https://dolarbipolar.com/moeda/${meta.slug}`,
+              item: `${SITE_URL}/moeda/${meta.slug}`,
             },
           ],
         }}
