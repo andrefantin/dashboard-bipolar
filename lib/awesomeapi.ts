@@ -11,8 +11,6 @@ export interface CurrencyMeta {
   lote: number;
   loteLabel: string | null;
   decimals: number;
-  /** símbolo exibido no ícone circular da moeda */
-  symbol: string;
   /** cor de identidade — é o que torna a lista escaneável.
    *  Nunca reutilizar as cores semânticas (pos/neg/warm): verde e vermelho
    *  significam direção, sempre. */
@@ -20,15 +18,15 @@ export interface CurrencyMeta {
 }
 
 export const CURRENCIES: CurrencyMeta[] = [
-  { code: "USD", slug: "usd", nome: "Dólar Comercial", lote: 1, loteLabel: null, decimals: 2, symbol: "$", color: "#6ee7b7" },
-  { code: "EUR", slug: "eur", nome: "Euro", lote: 1, loteLabel: null, decimals: 2, symbol: "€", color: "#60a5fa" },
-  { code: "GBP", slug: "gbp", nome: "Libra Esterlina", lote: 1, loteLabel: null, decimals: 2, symbol: "£", color: "#a78bfa" },
-  { code: "BTC", slug: "btc", nome: "Bitcoin", lote: 1, loteLabel: null, decimals: 0, symbol: "₿", color: "#fb923c" },
-  { code: "CAD", slug: "cad", nome: "Dólar Canadense", lote: 1, loteLabel: null, decimals: 2, symbol: "C$", color: "#e879f9" },
-  { code: "ARS", slug: "ars", nome: "Peso Argentino", lote: 100, loteLabel: "Lote de 100", decimals: 2, symbol: "AR$", color: "#7dd3fc" },
-  { code: "JPY", slug: "jpy", nome: "Iene Japonês", lote: 100, loteLabel: "Lote de 100", decimals: 2, symbol: "¥", color: "#f9a8d4" },
-  { code: "KRW", slug: "krw", nome: "Won Sul-Coreano", lote: 1000, loteLabel: "Lote de 1000", decimals: 2, symbol: "₩", color: "#5eead4" },
-  { code: "AUD", slug: "aud", nome: "Dólar Australiano", lote: 1, loteLabel: null, decimals: 2, symbol: "A$", color: "#fbbf24" },
+  { code: "USD", slug: "usd", nome: "Dólar Comercial", lote: 1, loteLabel: null, decimals: 2, color: "#6ee7b7" },
+  { code: "EUR", slug: "eur", nome: "Euro", lote: 1, loteLabel: null, decimals: 2, color: "#60a5fa" },
+  { code: "GBP", slug: "gbp", nome: "Libra Esterlina", lote: 1, loteLabel: null, decimals: 2, color: "#a78bfa" },
+  { code: "BTC", slug: "btc", nome: "Bitcoin", lote: 1, loteLabel: null, decimals: 0, color: "#fb923c" },
+  { code: "CAD", slug: "cad", nome: "Dólar Canadense", lote: 1, loteLabel: null, decimals: 2, color: "#e879f9" },
+  { code: "ARS", slug: "ars", nome: "Peso Argentino", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#7dd3fc" },
+  { code: "JPY", slug: "jpy", nome: "Iene Japonês", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#f9a8d4" },
+  { code: "KRW", slug: "krw", nome: "Won Sul-Coreano", lote: 1000, loteLabel: "Lote de 1000", decimals: 2, color: "#5eead4" },
+  { code: "AUD", slug: "aud", nome: "Dólar Australiano", lote: 1, loteLabel: null, decimals: 2, color: "#fbbf24" },
 ];
 
 export function getCurrency(slugOrCode: string): CurrencyMeta | undefined {

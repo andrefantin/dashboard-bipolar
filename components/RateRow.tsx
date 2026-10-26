@@ -1,4 +1,4 @@
-import Link from "next/link";
+import TransitionLink from "./TransitionLink";
 import type { CurrencyMeta, Rate } from "@/lib/awesomeapi";
 import { formatBRL } from "@/lib/format";
 import Sparkline from "./Sparkline";
@@ -23,12 +23,14 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
   const pct = rate?.pctChange ?? null;
 
   return (
-    <Link
+    <TransitionLink
+      nav="push"
+      currency={meta.slug}
       href={`/moeda/${meta.slug}`}
       className="flex items-center gap-3 pl-4 transition-colors active:bg-white/[0.06] md:hover:bg-white/[0.04]"
       aria-label={`${meta.nome}: ver histórico`}
     >
-      <CurrencyIcon symbol={meta.symbol} color={meta.color} />
+      <CurrencyIcon code={meta.code} color={meta.color} vtKey={meta.slug} />
       <span className="row-sep flex min-w-0 flex-1 items-center gap-3 border-t border-white/[0.07] py-3 pr-4">
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1.5 text-headline font-semibold">
@@ -58,7 +60,7 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
           />
         )}
         <span className="flex flex-col items-end gap-1">
-          <span className="tabular text-body leading-none">
+          <span className="tabular text-body leading-none" data-vt-price={meta.slug}>
             {value !== null ? formatBRL(value, meta.decimals) : "—"}
           </span>
           {pct !== null ? (
@@ -68,6 +70,6 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
           )}
         </span>
       </span>
-    </Link>
+    </TransitionLink>
   );
 }

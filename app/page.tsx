@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { IconChevronRight } from "@tabler/icons-react";
 import {
   CURRENCIES,
@@ -112,7 +112,10 @@ export default async function HomePage() {
               {/* O número-herói fica fora da escala de títulos: 40px é maior
                   que o Large Title (para ser o centro da tela) sem gritar. */}
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <span className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl">
+                <span
+                  className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl"
+                  data-vt-price="usd"
+                >
                   {formatBRL(usd.bid, 2)}
                 </span>
                 <DeltaChip pct={usd.pctChange} large />
@@ -121,13 +124,15 @@ export default async function HomePage() {
                 Mín {formatBRL(usd.low, 2)} · Máx {formatBRL(usd.high, 2)}
                 {updatedAt && <> · Atualizado às {updatedAt}</>}
               </p>
-              <Link
+              <TransitionLink
+                nav="push"
+                currency="usd"
                 href="/moeda/usd"
                 className="mt-1 inline-flex min-h-11 items-center gap-0.5 text-body text-pos transition-opacity active:opacity-60 md:hover:underline"
               >
                 Ver histórico
                 <IconChevronRight size={16} aria-hidden="true" />
-              </Link>
+              </TransitionLink>
             </>
           ) : (
             <p className="mt-2 max-w-sm text-ink-2">

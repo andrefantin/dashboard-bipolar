@@ -8,7 +8,7 @@ import DeltaChip from "./DeltaChip";
 export default function BovespaRow({ quote }: { quote: BovespaQuote }) {
   return (
     <div className="flex items-center gap-3 pl-4">
-      <CurrencyIcon symbol="◆" color="#d6dee2" />
+      <CurrencyIcon code="IBOV" color="#d6dee2" />
       <span className="row-sep flex min-w-0 flex-1 items-center gap-3 border-t border-white/[0.07] py-3 pr-4">
         <span className="min-w-0 flex-1">
           <span className="block text-headline font-semibold">IBOV</span>

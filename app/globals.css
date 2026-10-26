@@ -168,6 +168,87 @@ body {
     0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* ————— Transições de página (View Transitions API; ver lib/navTransition) —————
+   Barras fixas ganham camada própria e ficam paradas enquanto a página
+   desliza por baixo, como no iOS. Celular: push/pop deslizam; desktop e
+   troca de aba: fade curto. O ícone e o preço da moeda tocada se movem e
+   escalam entre a linha e o cabeçalho (cur-icon / cur-price). */
+:root {
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* O nome vai no próprio elemento com backdrop-filter: view-transition-name
+   cria uma "backdrop root", e um desfoque num descendente dela passaria a
+   enxergar só o conteúdo dela (o vidro da barra ficaria sem efeito). */
+.site-header {
+  view-transition-name: site-header;
+}
+.tabbar-nav {
+  view-transition-name: tab-bar;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(tab-bar),
+::view-transition-new(site-header),
+::view-transition-new(tab-bar) {
+  animation: none;
+}
+::view-transition-old(site-header),
+::view-transition-old(tab-bar) {
+  display: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+::view-transition-group(cur-icon),
+::view-transition-group(cur-price) {
+  animation-duration: 0.38s;
+  animation-timing-function: var(--ease-ios);
+}
+
+@media (max-width: 47.99rem) {
+  html[data-nav="push"]::view-transition-old(root) {
+    animation: 0.38s var(--ease-ios) both vt-slide-to-left;
+  }
+  html[data-nav="push"]::view-transition-new(root) {
+    animation: 0.38s var(--ease-ios) both vt-slide-from-right;
+  }
+  /* no pop a tela que sai fica por cima, deslizando para a direita */
+  html[data-nav="pop"]::view-transition-old(root) {
+    animation: 0.38s var(--ease-ios) both vt-slide-to-right;
+    z-index: 1;
+  }
+  html[data-nav="pop"]::view-transition-new(root) {
+    animation: 0.38s var(--ease-ios) both vt-slide-from-left;
+  }
+}
+
+@keyframes vt-slide-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-slide-to-left {
+  to {
+    transform: translateX(-30%);
+    opacity: 0.5;
+  }
+}
+@keyframes vt-slide-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-slide-from-left {
+  from {
+    transform: translateX(-30%);
+    opacity: 0.5;
+  }
+}
+
 /* ————— Desfoque progressivo atrás da barra de abas (celular) —————
    O "scroll edge effect" do iOS: o conteúdo vai ficando mais desfocado à
    medida que entra por baixo da barra, sem borda dura. backdrop-filter não

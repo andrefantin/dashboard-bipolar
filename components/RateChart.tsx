@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { IconPointFilled } from "@tabler/icons-react";
 import type { DailyPoint } from "@/lib/awesomeapi";
 import { formatBRL, formatLongDate, formatNumber, formatShortDate } from "@/lib/format";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
@@ -50,7 +51,10 @@ function ChartTooltip({
       <p className="text-xs text-ink-3">{formatLongDate(new Date(row.timestamp))}</p>
       <p className="tabular font-medium">{formatBRL(row.value, decimals)}</p>
       {hasMarker(row.date) && (
-        <p className="mt-0.5 text-xs text-warm">● toque para ver as manchetes</p>
+        <p className="mt-0.5 flex items-center gap-1 text-xs text-warm">
+          <IconPointFilled size={10} aria-hidden="true" />
+          toque para ver as manchetes
+        </p>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { notFound } from "next/navigation";
 import { IconChevronLeft } from "@tabler/icons-react";
 import {
@@ -103,20 +103,22 @@ export default async function CurrencyPage({
 
       {/* Botão "voltar" do iOS: chevron + nome da tela anterior, na cor de destaque */}
       <nav className="flex items-center justify-between pt-2 md:pt-6" aria-label="Voltar">
-        <Link
+        <TransitionLink
+          nav="pop"
+          currency={meta.slug}
           href="/"
           className="-ml-2 inline-flex min-h-11 items-center gap-0.5 px-1 text-body text-pos transition-opacity active:opacity-60 md:text-sm md:hover:underline"
         >
           <IconChevronLeft size={24} stroke={2.2} aria-hidden="true" className="md:h-4 md:w-4" />
           Cotações
-        </Link>
+        </TransitionLink>
         <RefreshButton />
       </nav>
 
       <section className="pb-6 pt-2 md:pt-4">
         <div>
           <div className="flex items-center gap-3">
-            <CurrencyIcon symbol={meta.symbol} color={meta.color} size={44} />
+            <CurrencyIcon code={meta.code} color={meta.color} size={44} vtKey={meta.slug} />
             {/* Tela interna (empilhada sobre Cotações): título padrão (Title 2),
                 não Large Title — esse fica só nas telas raiz das abas. */}
             <div className="min-w-0">
@@ -133,7 +135,10 @@ export default async function CurrencyPage({
           </div>
           {rate ? (
             <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl">
+              <span
+                className="tabular font-display text-[40px] font-semibold leading-none md:text-5xl"
+                data-vt-price={meta.slug}
+              >
                 {formatBRL(rate.bid * meta.lote, meta.decimals)}
               </span>
               <DeltaChip pct={rate.pctChange} large />

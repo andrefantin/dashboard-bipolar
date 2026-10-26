@@ -5,6 +5,7 @@ import "./globals.css";
 import Header, { PROFILE_URL } from "@/components/Header";
 import Footer from "@/components/Footer";
 import TabBar from "@/components/TabBar";
+import NavigationTransitions from "@/components/NavigationTransitions";
 import JsonLd from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
 
@@ -124,6 +125,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <TabBar />
+        <NavigationTransitions />
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ZFJVEXNH6X"

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import TransitionLink from "./TransitionLink";
 import { usePathname } from "next/navigation";
 import {
   IconArrowsDiff,
@@ -57,13 +57,14 @@ export default function TabBar() {
       aria-label="Navegação principal"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] md:hidden"
     >
-      <ul className="tabbar pointer-events-auto grid w-full max-w-[22rem] select-none grid-cols-4 gap-1 rounded-full p-1.5">
+      <ul className="tabbar tabbar-nav pointer-events-auto grid w-full max-w-[22rem] select-none grid-cols-4 gap-1 rounded-full p-1.5">
         {TABS.map((tab) => {
           const active = tab.match(pathname);
           const TabIcon = tab.icon;
           return (
             <li key={tab.href}>
-              <Link
+              <TransitionLink
+                nav="tab"
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex h-[52px] flex-col items-center justify-center gap-0.5 rounded-full text-caption2 font-medium transition-colors active:opacity-60 ${
@@ -72,7 +73,7 @@ export default function TabBar() {
               >
                 <TabIcon size={24} stroke={active ? 2 : 1.6} aria-hidden="true" />
                 {tab.label}
-              </Link>
+              </TransitionLink>
             </li>
           );
         })}
