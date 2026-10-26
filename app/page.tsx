@@ -125,7 +125,6 @@ export default async function HomePage() {
               </p>
               <TransitionLink
                 nav="push"
-                currency="usd"
                 href="/moeda/usd"
                 className="mt-1 inline-flex min-h-11 items-center gap-0.5 text-body text-pos transition-opacity active:opacity-60 md:hover:underline"
               >

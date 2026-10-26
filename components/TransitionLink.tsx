@@ -9,13 +9,13 @@ type TransitionLinkProps = Omit<ComponentProps<typeof Link>, "href"> & {
   href: string;
   /** que animação usar: push, pop ou tab (ver lib/navTransition) */
   nav: NavKind;
-  /** slug da moeda cujo ícone/preço viajam entre as telas */
-  currency?: string;
+  /** no pop: slug da moeda cuja linha a lista deve centralizar ao voltar */
+  returnTo?: string;
 };
 
 /** <Link> do Next com transição de página. Mantém o prefetch do Link e cai
  *  na navegação normal quando a animação não se aplica. */
-export default function TransitionLink({ nav, currency, onClick, ...props }: TransitionLinkProps) {
+export default function TransitionLink({ nav, returnTo, onClick, ...props }: TransitionLinkProps) {
   const router = useRouter();
 
   return (
@@ -31,7 +31,7 @@ export default function TransitionLink({ nav, currency, onClick, ...props }: Tra
         // esperando uma troca de rota que não vem
         if (new URL(props.href, location.href).pathname === location.pathname) return;
         e.preventDefault();
-        navigateWithTransition((href, options) => router.push(href, options), props.href, nav, currency);
+        navigateWithTransition((href, options) => router.push(href, options), props.href, nav, returnTo);
       }}
     />
   );

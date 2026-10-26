@@ -33,16 +33,13 @@ interface CurrencyIconProps {
   code: string;
   color: string;
   size?: number;
-  /** chave da transição compartilhada (ícone viaja da lista para a página) */
-  vtKey?: string;
 }
 
-export default function CurrencyIcon({ code, color, size = 36, vtKey }: CurrencyIconProps) {
+export default function CurrencyIcon({ code, color, size = 36 }: CurrencyIconProps) {
   const CurrencyGlyph = ICONS[code] ?? IconCurrencyDollar;
   return (
     <span
       aria-hidden="true"
-      data-vt-icon={vtKey}
       className="flex shrink-0 items-center justify-center rounded-full"
       style={{ width: size, height: size, backgroundColor: `${color}24`, color }}
     >

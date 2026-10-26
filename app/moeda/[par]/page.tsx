@@ -105,7 +105,7 @@ export default async function CurrencyPage({
       <nav className="flex items-center justify-between pt-2 md:pt-6" aria-label="Voltar">
         <TransitionLink
           nav="pop"
-          currency={meta.slug}
+          returnTo={meta.slug}
           href="/"
           className="-ml-2 inline-flex min-h-11 items-center gap-0.5 px-1 text-body text-pos transition-opacity active:opacity-60 md:text-sm md:hover:underline"
         >
@@ -118,7 +118,7 @@ export default async function CurrencyPage({
       <section className="pb-6 pt-2 md:pt-4">
         <div>
           <div className="flex items-center gap-3">
-            <CurrencyIcon code={meta.code} color={meta.color} size={44} vtKey={meta.slug} />
+            <CurrencyIcon code={meta.code} color={meta.color} size={44} />
             {/* Tela interna (empilhada sobre Cotações): título padrão (Title 2),
                 não Large Title — esse fica só nas telas raiz das abas. */}
             <div className="min-w-0">

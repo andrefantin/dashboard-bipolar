@@ -2,11 +2,9 @@
 //   push — a tela nova entra pela direita (lista → moeda)
 //   pop  — a tela atual sai pela direita (moeda → lista)
 //   tab  — troca de aba: só um fade curto (o iOS não desliza entre abas)
-// O ícone da moeda tocada "viaja" entre a linha da lista e o cabeçalho da
-// página da moeda (elemento compartilhado). O preço não: na linha ele é
-// Satoshi 16px à direita, no cabeçalho Clash 40px à esquerda — o navegador
-// escala um *instantâneo*, então o número esticava 2,5× trocando de fonte e
-// cruzava a tela na diagonal. Só morfa o que é igual nas duas pontas.
+// A tela inteira se move como uma peça só. Já houve elemento compartilhado
+// (ícone e preço voando da linha para o cabeçalho), mas as duas pontas não
+// eram iguais o bastante e o movimento ficava estranho — foi removido.
 //
 // O navegador captura a tela antiga, chama nosso callback e espera a promessa
 // dele resolver para capturar a nova. Quem resolve é o NavigationTransitions,
@@ -16,26 +14,12 @@ export type NavKind = "push" | "pop" | "tab";
 
 interface Pending {
   nav: NavKind;
-  currency?: string;
+  /** no pop: slug da moeda de onde voltamos, para rolar até a linha dela */
+  returnTo?: string;
   resolve: () => void;
 }
 
 let pending: Pending | null = null;
-
-const SHARED = ["icon"] as const;
-
-/** Dá `view-transition-name` só ao ícone da moeda que viaja.
- *  Se todas as linhas tivessem nome, cada ícone viraria uma camada
- *  separada e ficaria parado enquanto a página desliza. */
-function nameSharedElements(currency?: string) {
-  for (const part of SHARED) {
-    document.querySelectorAll<HTMLElement>(`[data-vt-${part}]`).forEach((el) => {
-      const match = currency && el.getAttribute(`data-vt-${part}`) === currency;
-      if (match) el.style.setProperty("view-transition-name", `cur-${part}`);
-      else el.style.removeProperty("view-transition-name");
-    });
-  }
-}
 
 /** Sem suporte (Safari < 18, Firefox antigo) ou com Reduzir Movimento ligado:
  *  navegação normal, sem animação. */
@@ -51,11 +35,10 @@ export function navigateWithTransition(
   push: (href: string, options?: { scroll?: boolean }) => void,
   href: string,
   nav: NavKind,
-  currency?: string
+  returnTo?: string
 ) {
   const root = document.documentElement;
   root.dataset.nav = nav;
-  nameSharedElements(currency); // tela antiga: nomes antes da captura
 
   const transition = document.startViewTransition(
     () =>
@@ -67,7 +50,7 @@ export function navigateWithTransition(
           pending = null;
           resolve();
         }
-        pending = { nav, currency, resolve: done };
+        pending = { nav, returnTo, resolve: done };
         // No pop a rolagem é nossa (ver completeNavigationTransition)
         push(href, nav === "pop" ? { scroll: false } : undefined);
       })
@@ -75,7 +58,6 @@ export function navigateWithTransition(
 
   transition.finished.finally(() => {
     delete root.dataset.nav;
-    nameSharedElements(undefined);
   });
 }
 
@@ -83,12 +65,15 @@ export function navigateWithTransition(
 export function completeNavigationTransition() {
   const p = pending;
   if (!p) return;
-  if (p.nav === "pop" && p.currency) {
-    // Voltando para a lista: centraliza a linha de onde viemos, para o ícone
-    // pousar no lugar certo (e o usuário não perder onde estava).
-    const target = document.querySelector<HTMLElement>(`[data-vt-icon="${p.currency}"]`);
-    target?.scrollIntoView({ block: "center" });
+  if (p.nav === "pop") {
+    // Voltando para a lista: centraliza a linha da moeda de onde viemos, para
+    // o usuário não perder onde estava (como a pilha de navegação do iOS).
+    // Sem linha (ex.: dólar, que fica no topo), volta ao topo.
+    const row = p.returnTo
+      ? document.querySelector<HTMLElement>(`[data-row="${p.returnTo}"]`)
+      : null;
+    if (row) row.scrollIntoView({ block: "center" });
+    else window.scrollTo(0, 0);
   }
-  nameSharedElements(p.currency); // tela nova: nomes antes da captura
   p.resolve();
 }

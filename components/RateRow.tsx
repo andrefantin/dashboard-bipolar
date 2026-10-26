@@ -25,12 +25,12 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
   return (
     <TransitionLink
       nav="push"
-      currency={meta.slug}
+      data-row={meta.slug}
       href={`/moeda/${meta.slug}`}
       className="flex items-center gap-3 pl-4 transition-colors active:bg-white/[0.06] md:hover:bg-white/[0.04]"
       aria-label={`${meta.nome}: ver histórico`}
     >
-      <CurrencyIcon code={meta.code} color={meta.color} vtKey={meta.slug} />
+      <CurrencyIcon code={meta.code} color={meta.color} />
       <span className="row-sep flex min-w-0 flex-1 items-center gap-3 border-t border-white/[0.07] py-3 pr-4">
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1.5 text-headline font-semibold">
