@@ -8,6 +8,8 @@
   --color-ink-2: #9db2a8;
   --color-ink-3: #7d8f85;
   --color-pos: #34d399;
+  /* emerald a 15% sobre o fundo, opaco: o filtro "gooey" precisa de fill sólido */
+  --color-pos-deep: #1b3d31;
   --color-mint: #a7f3d0;
   --color-neg: #f87171;
   --color-warm: #f5b04c;

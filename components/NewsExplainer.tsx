@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { BorderBeam } from "border-beam";
 import {
   IconArrowUpRight,
   IconChartLine,
@@ -149,16 +150,33 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
         </p>
       )}
 
-      {/* Gatilho do modal */}
-      <button
-        type="button"
-        onClick={openModal}
-        className="glass inline-flex shrink-0 items-center justify-center gap-2 self-start px-3.5 py-2.5 text-sm font-medium text-ink-2 transition-colors hover:text-ink"
+      {/* Gatilho do modal. O feixe respira dentro do botão até a primeira
+          abertura e depois se apaga (active={false} não renderiza camadas).
+          O wrapper do BorderBeam tem overflow:hidden, então a sombra do
+          vidro mora nele, não no botão. Sob prefers-reduced-motion o feixe
+          some por completo; o ícone esmeralda e o rótulo seguem como pista. */}
+      <BorderBeam
+        size="pulse-inner"
+        colorVariant="forest"
+        staticColors
+        strength={0.5}
+        duration={3.2}
+        theme="dark"
+        borderRadius={16}
+        active={!hasOpened}
+        className="shrink-0 self-start"
+        style={{ boxShadow: "0 8px 32px rgba(0, 0, 0, 0.35)" }}
       >
-        <IconChartLine size={16} aria-hidden="true" className="text-pos" />
-        <span className="hidden md:inline">Por que o dólar está assim?</span>
-        <span className="md:hidden">Entenda o dólar</span>
-      </button>
+        <button
+          type="button"
+          onClick={openModal}
+          className="glass flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium text-ink-2 shadow-none! transition-colors hover:text-ink"
+        >
+          <IconChartLine size={16} aria-hidden="true" className="text-pos" />
+          <span className="hidden md:inline">Por que o dólar está assim?</span>
+          <span className="md:hidden">Entenda o dólar</span>
+        </button>
+      </BorderBeam>
 
       {/* Modal com gráfico + manchetes por dia */}
       <dialog
