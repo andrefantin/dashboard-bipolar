@@ -12,11 +12,16 @@ interface MoodCardProps {
   series: DailyPoint[];
 }
 
-/** Usa a variante do mascote por humor quando o asset existir;
- *  até lá, o avatar flamejante original serve para os cinco. */
+/** Mascote de corpo inteiro do card. Uma variante por humor entra sozinha ao
+ *  existir em public/mascote/humor-{mood}.webp (ou .png); até lá, humor.webp
+ *  serve para os cinco. As imagens vão recortadas rente à figura, sem margem
+ *  transparente, para alinharem com a grade do card. */
 function mascotSrc(moodId: string): string {
-  const perMood = path.join(process.cwd(), "public", "mascote", `${moodId}.png`);
-  return fs.existsSync(perMood) ? `/mascote/${moodId}.png` : "/mascote/default.webp";
+  for (const ext of ["webp", "png"]) {
+    const file = `humor-${moodId}.${ext}`;
+    if (fs.existsSync(path.join(process.cwd(), "public", "mascote", file))) return `/mascote/${file}`;
+  }
+  return "/mascote/humor.webp";
 }
 
 const MOOD_TONE: Record<string, string> = {
@@ -28,51 +33,49 @@ const MOOD_TONE: Record<string, string> = {
 };
 
 /** Conteúdo do card de humor (estilo widget do iOS); o painel de vidro
- *  em volta é da página. */
+ *  em volta é da página. Grade de duas colunas: o mascote ocupa 24% da
+ *  largura e o texto o resto; embaixo, "Hoje" fica na coluna do mascote e a
+ *  volatilidade + sparkline na do texto, alinhados com o título. */
 export default function MoodCard({ mood, series }: MoodCardProps) {
   const bids = series.map((p) => p.bid);
 
   return (
-    <div className="flex h-full flex-col justify-between gap-5">
-      <div className="flex items-center gap-4">
-        <Image
-          src={mascotSrc(mood.id)}
-          alt=""
-          width={56}
-          height={56}
-          priority
-          className="rounded-2xl"
-        />
-        <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-widest text-ink-3">
-            Índice de Humor do Dólar
-          </p>
-          <h2
-            className={`font-display text-title3 font-medium ${MOOD_TONE[mood.id]}`}
-          >
-            {mood.label}
-          </h2>
-          <p className="mt-0.5 text-sm text-ink-2">{mood.caption}</p>
-        </div>
+    <div className="grid grid-cols-[24%_1fr] gap-x-[4.5%] gap-y-4">
+      <Image
+        src={mascotSrc(mood.id)}
+        alt=""
+        width={930}
+        height={1100}
+        priority
+        sizes="(min-width: 1024px) 120px, 24vw"
+        className="h-auto w-full self-start"
+      />
+      <div className="min-w-0 self-start pt-2">
+        <p className="text-caption1 font-medium uppercase tracking-widest text-ink-3">
+          Índice de Humor do Dólar
+        </p>
+        <h2 className={`mt-0.5 font-display text-title3 font-medium ${MOOD_TONE[mood.id]}`}>
+          {mood.label}
+        </h2>
+        <p className="mt-1 text-subhead text-ink-2">{mood.caption}</p>
       </div>
 
-      {/* Rótulo em cima, valor embaixo: cabe em uma linha até 360px */}
-      <div className="flex items-end gap-6">
-        <dl className="flex gap-6 text-sm">
-          <div>
-            <dt className="text-xs text-ink-3">Hoje</dt>
-            <dd className="mt-1">
-              <DeltaChip pct={mood.todayChange} />
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-ink-3">Volatilidade 30d</dt>
-            <dd className="tabular mt-1 text-ink-2">{formatNumber(mood.volatility)} p.p.</dd>
-          </div>
+      <dl>
+        <dt className="text-xs text-ink-3">Hoje</dt>
+        <dd className="mt-1">
+          <DeltaChip pct={mood.todayChange} />
+        </dd>
+      </dl>
+      <div className="flex min-w-0 items-end justify-between gap-4">
+        <dl>
+          <dt className="text-xs text-ink-3">Volatilidade 30d</dt>
+          <dd className="tabular mt-1 text-subhead text-ink-2">
+            {formatNumber(mood.volatility)} p.p.
+          </dd>
         </dl>
         {bids.length > 1 && (
-          <span className="ml-auto" aria-label="Evolução do dólar nos últimos 30 dias">
-            <Sparkline data={bids} width={88} height={30} />
+          <span aria-label="Evolução do dólar nos últimos 30 dias">
+            <Sparkline data={bids} width={96} height={30} />
           </span>
         )}
       </div>
