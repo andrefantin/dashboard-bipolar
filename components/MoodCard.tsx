@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { MoodResult } from "@/lib/mood";
+import type { MoodId, MoodResult } from "@/lib/mood";
 import type { DailyPoint } from "@/lib/awesomeapi";
 import { formatNumber } from "@/lib/format";
 import Sparkline from "./Sparkline";
@@ -25,12 +25,14 @@ function mascotSrc(moodId: string): string {
   return "/mascote/humor.webp";
 }
 
-const MOOD_TONE: Record<string, string> = {
-  mania: "text-warm/90",
-  agitado: "text-warm/90",
-  estavel: "text-pos/90",
-  baixa: "text-cool/90",
-  depressivo: "text-cool/90",
+// Mesma régua do resto do site (lib/tone): verde é bom para o leitor
+const MOOD_TONE: Record<MoodId, string> = {
+  euforico: "text-pos",
+  feliz: "text-mint",
+  estavel: "text-ink",
+  irritado: "text-warm",
+  furioso: "text-neg",
+  instavel: "text-cool",
 };
 
 /** Conteúdo do card de humor (estilo widget do iOS); o painel de vidro
@@ -42,15 +44,20 @@ export default function MoodCard({ mood, series }: MoodCardProps) {
 
   return (
     <div className="grid grid-cols-[24%_1fr] gap-x-[4.5%] gap-y-4">
-      <Image
-        src={mascotSrc(mood.id)}
-        alt=""
-        width={930}
-        height={1100}
-        priority
-        sizes="(min-width: 1024px) 120px, 24vw"
-        className="h-auto w-full self-start"
-      />
+      {/* Caixa de proporção fixa (a do mascote estável, 930×1100): as figuras
+          de cada humor têm proporções diferentes (1,10 a 1,34), e sem a caixa o
+          card mudaria de altura conforme o humor. Cada uma cabe inteira,
+          apoiada no fundo. */}
+      <div className="relative aspect-[930/1100] w-full self-start">
+        <Image
+          src={mascotSrc(mood.id)}
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1024px) 120px, 24vw"
+          className="object-contain object-bottom"
+        />
+      </div>
       <div className="min-w-0 self-start pt-2">
         <p className="text-caption1 font-medium uppercase tracking-widest text-ink-3">
           Índice de Humor do Dólar

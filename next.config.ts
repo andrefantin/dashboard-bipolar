@@ -8,7 +8,7 @@ import type { NextConfig } from "next";
 // faria a variante sumir na primeira revalidação.
 const mascotDir = path.join(process.cwd(), "public", "mascote");
 const moodMascots = fs.existsSync(mascotDir)
-  ? fs.readdirSync(mascotDir).filter((f) => /^humor-(mania|agitado|estavel|baixa|depressivo)\.(webp|png)$/.test(f))
+  ? fs.readdirSync(mascotDir).filter((f) => /^humor-(euforico|feliz|estavel|irritado|furioso|instavel)\.(webp|png)$/.test(f))
   : [];
 
 const isDev = process.env.NODE_ENV !== "production";

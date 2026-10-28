@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { CURRENCIES, type DailyPoint } from "@/lib/awesomeapi";
 import { formatPct } from "@/lib/format";
+import { isGoodChange } from "@/lib/tone";
 import PeriodToggle, { type PeriodDays } from "./PeriodToggle";
 import GlassPanel from "./GlassPanel";
 import type { CompareRow } from "./CompareChart";
@@ -169,7 +170,7 @@ export default function CompareClient() {
                   style={{ backgroundColor: s.color }}
                 />
                 <span className="text-ink-2">{s.nome}</span>
-                <span className={`tabular font-medium ${s.change >= 0 ? "text-pos" : "text-neg"}`}>
+                <span className={`tabular font-medium ${isGoodChange(s.change) ? "text-pos" : "text-neg"}`}>
                   {formatPct(s.change)}
                 </span>
               </li>

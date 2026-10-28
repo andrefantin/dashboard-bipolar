@@ -55,21 +55,27 @@
   --glow-b: rgba(167, 243, 208, 0.06);
 }
 
-[data-mood="mania"] {
-  --glow-a: rgba(245, 176, 76, 0.14);
+/* Humor do leitor: verde quando o dólar cai, âmbar/coral quando sobe.
+   "estavel" usa o brilho padrão do :root. */
+[data-mood="euforico"] {
+  --glow-a: rgba(52, 211, 153, 0.2);
+  --glow-b: rgba(167, 243, 208, 0.09);
+}
+[data-mood="feliz"] {
+  --glow-a: rgba(167, 243, 208, 0.13);
   --glow-b: rgba(52, 211, 153, 0.07);
 }
-[data-mood="agitado"] {
-  --glow-a: rgba(245, 176, 76, 0.1);
-  --glow-b: rgba(52, 211, 153, 0.09);
+[data-mood="irritado"] {
+  --glow-a: rgba(245, 176, 76, 0.13);
+  --glow-b: rgba(52, 211, 153, 0.05);
 }
-[data-mood="baixa"] {
-  --glow-a: rgba(143, 168, 186, 0.12);
-  --glow-b: rgba(52, 211, 153, 0.06);
+[data-mood="furioso"] {
+  --glow-a: rgba(248, 113, 113, 0.14);
+  --glow-b: rgba(245, 176, 76, 0.06);
 }
-[data-mood="depressivo"] {
-  --glow-a: rgba(120, 148, 170, 0.15);
-  --glow-b: rgba(143, 168, 186, 0.07);
+[data-mood="instavel"] {
+  --glow-a: rgba(143, 168, 186, 0.13);
+  --glow-b: rgba(52, 211, 153, 0.05);
 }
 
 html {

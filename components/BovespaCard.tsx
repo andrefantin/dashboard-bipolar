@@ -16,7 +16,7 @@ export default function BovespaRow({ quote }: { quote: BovespaQuote }) {
         </span>
         <span className="flex flex-col items-end gap-1">
           <span className="tabular text-body leading-none">{formatNumber(quote.points, 0)}</span>
-          <DeltaChip pct={quote.pctChange} solid />
+          <DeltaChip pct={quote.pctChange} solid goodWhen="up" />
         </span>
       </span>
     </div>

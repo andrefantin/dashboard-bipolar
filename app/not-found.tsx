@@ -5,7 +5,7 @@ import GlassPanel from "@/components/GlassPanel";
 export default function NotFound() {
   return (
     <>
-      <Backdrop mood="depressivo" />
+      <Backdrop mood="instavel" />
       <div className="flex justify-center py-24">
         <GlassPanel raised className="max-w-md p-8 text-center">
           <p className="tabular font-display text-5xl font-semibold">404</p>

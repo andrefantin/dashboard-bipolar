@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "./site";
+import { isGoodChange } from "./tone";
 
 // Cartão de compartilhamento (og:image, 1200×630) com a cotação ao vivo —
 // é o que aparece quando alguém posta o link no Bluesky, Twitter ou WhatsApp,
@@ -18,8 +19,9 @@ const NEG = "#f87171";
  *  arquivo está no disco; nas revalidações na Vercel, public/ não está no
  *  disco da função, então busca pela URL pública. Sem imagem, o cartão sai
  *  só com texto. */
-async function mascotDataUrl(): Promise<string | null> {
-  const file = "humor-og.png";
+const DEFAULT_MASCOT = "humor-og.png";
+
+async function loadPng(file: string): Promise<string | null> {
   try {
     const buf = await readFile(path.join(process.cwd(), "public", "mascote", file));
     return `data:image/png;base64,${buf.toString("base64")}`;
@@ -34,6 +36,11 @@ async function mascotDataUrl(): Promise<string | null> {
   }
 }
 
+/** A figura pedida (a do humor do dia) e, se faltar, a padrão. */
+async function mascotDataUrl(file?: string): Promise<string | null> {
+  return (file && (await loadPng(file))) || loadPng(DEFAULT_MASCOT);
+}
+
 interface OgCardInput {
   /** linha pequena no topo, ex.: "Cotação do dólar hoje" */
   overline: string;
@@ -45,11 +52,15 @@ interface OgCardInput {
   footnote?: string;
   /** cor do rodapé e do brilho de fundo */
   accent?: string;
+  /** PNG da figura em public/mascote (ex.: "humor-og-furioso.png"); sem ele, a padrão */
+  mascot?: string;
 }
 
-export async function renderOgCard({ overline, price, pct, footnote, accent = POS }: OgCardInput) {
-  const mascot = await mascotDataUrl();
+export async function renderOgCard({ overline, price, pct, footnote, accent = POS, mascot: mascotFile }: OgCardInput) {
+  const mascot = await mascotDataUrl(mascotFile);
   const up = (pct ?? 0) >= 0;
+  // Cor pelo leitor (moeda mais barata = verde), como no site; ver lib/tone
+  const good = isGoodChange(pct ?? 0);
   const pctText =
     pct === null
       ? null
@@ -85,8 +96,8 @@ export async function renderOgCard({ overline, price, pct, footnote, accent = PO
                 padding: "8px 22px",
                 borderRadius: 999,
                 fontSize: 34,
-                color: up ? POS : NEG,
-                background: up ? "rgba(52,211,153,0.14)" : "rgba(248,113,113,0.14)",
+                color: good ? POS : NEG,
+                background: good ? "rgba(52,211,153,0.14)" : "rgba(248,113,113,0.14)",
               }}
             >
               {pctText}
@@ -96,7 +107,8 @@ export async function renderOgCard({ overline, price, pct, footnote, accent = PO
         </div>
         {mascot && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={mascot} width={440} height={520} alt="" />
+          // Caixa fixa com contain: as figuras de cada humor têm proporções diferentes
+          <img src={mascot} width={480} height={520} alt="" style={{ objectFit: "contain", objectPosition: "bottom" }} />
         )}
       </div>
     ),

@@ -48,7 +48,7 @@ Nada mais a configurar.
 
 ## Mascote por humor
 
-O card de humor usa o mascote de corpo inteiro `public/mascote/humor.webp` para os cinco humores. Para dar a um humor a sua própria figura, salve-a como `public/mascote/humor-{mania,agitado,estavel,baixa,depressivo}.webp` (ou `.png`), com fundo transparente e recortada rente à figura — ela entra no lugar sozinha. O avatar redondo (`default.webp`) continua no cabeçalho e no ícone do app.
+O card de humor usa o mascote de corpo inteiro `public/mascote/humor.webp` para os seis humores. Para dar a um humor a sua própria figura, salve-a como `public/mascote/humor-{euforico,feliz,estavel,irritado,furioso,instavel}.webp` (ou `.png`), com fundo transparente e recortada rente à figura — ela entra no lugar sozinha. O avatar redondo (`default.webp`) continua no cabeçalho e no ícone do app.
 
 ---
 

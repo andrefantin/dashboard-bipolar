@@ -3,26 +3,25 @@ import { TIMEZONE } from "./format";
 
 // O Índice de Humor do Dólar: matemática de volatilidade + o mapa de humores
 // que dá personalidade à marca. Limiares em pontos percentuais.
+//
+// O humor é do ponto de vista do leitor brasileiro: dólar caindo (real
+// ganhando força) deixa o mascote feliz; dólar subindo o deixa irritado e,
+// numa disparada, furioso. A régua é simétrica — dois níveis para cada lado —
+// e o mês agitado sem direção clara no dia vira "instável".
 
 export const MOOD_THRESHOLDS = {
-  /** todayChange acima disso: Mania */
-  mania: 1.2,
-  /** todayChange abaixo disso: Depressivo */
-  depressivo: -1.2,
-  /** todayChange abaixo disso: Pra baixo */
-  praBaixo: -0.6,
-  /** volatilidade acima + |todayChange| acima: Agitado */
-  agitadoVol: 0.8,
-  agitadoChange: 0.4,
-  /** volatilidade e |todayChange| até aqui: Estável */
-  estavelVol: 0.5,
-  estavelChange: 0.3,
+  /** variação do dia além disso (para cima ou para baixo): humor forte */
+  forte: 1.2,
+  /** variação do dia além disso: humor moderado */
+  moderado: 0.6,
+  /** volatilidade de 30 dias acima disso, num dia sem direção clara: instável */
+  instavelVol: 0.65,
 } as const;
 
 /** Dias com variação diária além disso ganham marcador de notícia no gráfico. */
 export const NEWS_SPIKE_THRESHOLD = 0.7;
 
-export type MoodId = "mania" | "agitado" | "estavel" | "baixa" | "depressivo";
+export type MoodId = "euforico" | "feliz" | "estavel" | "irritado" | "furioso" | "instavel";
 
 export interface MoodDef {
   id: MoodId;
@@ -32,26 +31,26 @@ export interface MoodDef {
 }
 
 export const MOODS: Record<MoodId, MoodDef> = {
-  mania: {
-    id: "mania",
-    nome: "Mania",
-    label: "Em surto de alta",
+  euforico: {
+    id: "euforico",
+    nome: "Eufórico",
+    label: "Em êxtase com o real",
     captions: [
-      "Acordou decidido a assustar todo mundo.",
-      "Subiu no telhado e recusa negociação.",
-      "Ninguém sabe o motivo. Ele também não.",
-      "Energia de quem tomou três cafés e leu uma manchete.",
+      "O dólar despencou e ele já está montando o carrinho no site gringo.",
+      "Viagem internacional voltou para a lista de desejos.",
+      "Comemorando como se o câmbio fosse final de Copa.",
+      "Hoje dá até para olhar o preço do iPhone sem chorar.",
     ],
   },
-  agitado: {
-    id: "agitado",
-    nome: "Agitado",
-    label: "Instável, evite contato",
+  feliz: {
+    id: "feliz",
+    nome: "Feliz",
+    label: "De bom humor",
     captions: [
-      "Melhor não perguntar como ele está.",
-      "Mudou de opinião quatro vezes desde o almoço.",
-      "Oscilando mais que sinal de wi-fi de rodoviária.",
-      "Hoje ele reage a qualquer estímulo. Qualquer um.",
+      "O dólar deu uma aliviada. Ele também.",
+      "Respirando melhor com o real de pé.",
+      "Sorriso discreto, para não dar azar.",
+      "Um dia bom para quem paga a fatura em dólar.",
     ],
   },
   estavel: {
@@ -65,26 +64,37 @@ export const MOODS: Record<MoodId, MoodDef> = {
       "Estável. Desconfie, mas aproveite.",
     ],
   },
-  baixa: {
-    id: "baixa",
-    nome: "Pra baixo",
-    label: "Numa fase down",
+  irritado: {
+    id: "irritado",
+    nome: "Irritado",
+    label: "De mau humor",
     captions: [
-      "Acordou meio pra baixo e não quis conversar.",
-      "Está se reavaliando como moeda.",
-      "Precisando de um tempo longe dos holofotes.",
-      "Desceu para refletir. Volta quando quiser.",
+      "O dólar subiu e ele já desmarcou a viagem.",
+      "Atualizando a fatura do cartão de cinco em cinco minutos.",
+      "Bufando a cada atualização da cotação.",
+      "Hoje ele não está para conversa.",
     ],
   },
-  depressivo: {
-    id: "depressivo",
-    nome: "Depressivo",
-    label: "Caindo e chorando",
+  furioso: {
+    id: "furioso",
+    nome: "Furioso",
+    label: "Furioso, evite contato",
     captions: [
-      "Chorando no banheiro do mercado financeiro.",
-      "Hoje não. Hoje ele só cai.",
-      "Em queda livre e sentimental.",
-      "Alguém arruma um copo d'água pra ele.",
+      "O dólar disparou e ele está gritando com o aplicativo do banco.",
+      "Quebrou o cofrinho de moedas estrangeiras de raiva.",
+      "Não pergunte sobre a viagem. Nem sobre o iPhone.",
+      "Fúria compatível com o IOF.",
+    ],
+  },
+  instavel: {
+    id: "instavel",
+    nome: "Instável",
+    label: "Instável e indeciso",
+    captions: [
+      "Mudou de opinião quatro vezes desde o almoço.",
+      "Oscilando mais que sinal de wi-fi de rodoviária.",
+      "Hoje ele reage a qualquer estímulo. Qualquer um.",
+      "Melhor não perguntar como ele está.",
     ],
   },
 };
@@ -110,13 +120,16 @@ function stdDev(values: number[]): number {
 
 function pickMood(todayChange: number, volatility: number): MoodId {
   const t = MOOD_THRESHOLDS;
-  if (todayChange < t.depressivo) return "depressivo";
-  if (todayChange > t.mania) return "mania";
-  if (todayChange < t.praBaixo) return "baixa";
-  if (volatility > t.agitadoVol && Math.abs(todayChange) > t.agitadoChange) return "agitado";
-  if (volatility <= t.estavelVol && Math.abs(todayChange) <= t.estavelChange) return "estavel";
-  // Zona cinzenta entre "agitado" e "estável": desempata pela volatilidade.
-  return volatility > (t.agitadoVol + t.estavelVol) / 2 ? "agitado" : "estavel";
+  // Compara com 2 casas, como o card mostra: sem isso, −1,2% exato saía
+  // −1,1999…% e caía no nível de baixo, com o chip dizendo "−1,20%".
+  const change = Math.round(todayChange * 100) / 100;
+  // Dólar caindo é bom para o leitor; subindo, ruim (ver comentário no topo)
+  if (change <= -t.forte) return "euforico";
+  if (change >= t.forte) return "furioso";
+  if (change <= -t.moderado) return "feliz";
+  if (change >= t.moderado) return "irritado";
+  // Movimento pequeno hoje: o mês decide entre agitado e calmo
+  return volatility > t.instavelVol ? "instavel" : "estavel";
 }
 
 /** Legenda rotaciona por dia (determinística: SSR e cliente rendem igual). */

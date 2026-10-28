@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CurrencyMeta, DailyPoint } from "@/lib/awesomeapi";
 import { formatBRL, formatPct } from "@/lib/format";
+import { isGoodChange } from "@/lib/tone";
 import PeriodToggle, { type PeriodDays } from "./PeriodToggle";
 import GlassPanel from "./GlassPanel";
 
@@ -84,7 +85,7 @@ export default function CurrencyDetail({ meta, initialSeries, initialDays }: Cur
           <div className="pl-6">
             <dt className="text-xs text-ink-3">Variação</dt>
             <dd
-              className={`tabular mt-0.5 ${stats.variation >= 0 ? "text-pos" : "text-neg"}`}
+              className={`tabular mt-0.5 ${isGoodChange(stats.variation) ? "text-pos" : "text-neg"}`}
             >
               {formatPct(stats.variation)}
             </dd>

@@ -4,6 +4,7 @@ import { formatBRL } from "@/lib/format";
 import Sparkline from "./Sparkline";
 import CurrencyIcon from "./CurrencyIcon";
 import DeltaChip from "./DeltaChip";
+import { isGoodChange } from "@/lib/tone";
 
 interface RateRowProps {
   meta: CurrencyMeta;
@@ -56,7 +57,7 @@ export default function RateRow({ meta, rate, spark }: RateRowProps) {
             data={spark}
             width={56}
             height={26}
-            tone={pct === null ? "neutral" : pct >= 0 ? "pos" : "neg"}
+            tone={pct === null ? "neutral" : isGoodChange(pct) ? "pos" : "neg"}
           />
         )}
         <span className="flex flex-col items-end gap-1">

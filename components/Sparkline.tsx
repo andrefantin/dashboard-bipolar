@@ -1,9 +1,12 @@
 // Sparkline SVG leve, renderizável no servidor — sem lib de gráfico.
+import { isGoodChange } from "@/lib/tone";
+
 interface SparklineProps {
   data: number[];
   width?: number;
   height?: number;
-  /** força a cor; por padrão deriva da tendência (fim vs. início) */
+  /** força a cor; por padrão deriva da tendência (fim vs. início), com a
+   *  régua do leitor: moeda que ficou mais barata no período = verde */
   tone?: "pos" | "neg" | "neutral";
 }
 
@@ -23,7 +26,7 @@ export default function Sparkline({ data, width = 96, height = 28, tone }: Spark
     })
     .join(" ");
 
-  const trend = tone ?? (data[data.length - 1] >= data[0] ? "pos" : "neg");
+  const trend = tone ?? (isGoodChange(data[data.length - 1] - data[0]) ? "pos" : "neg");
   const stroke =
     trend === "pos"
       ? "var(--color-pos)"
