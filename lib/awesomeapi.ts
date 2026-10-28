@@ -7,6 +7,8 @@ export interface CurrencyMeta {
   /** slug de rota: /moeda/usd */
   slug: string;
   nome: string;
+  /** artigo do nome, para "do euro" / "da libra" */
+  artigo: "o" | "a";
   /** JPY/ARS cotados por unidade — exibimos por lote, como no site v1. */
   lote: number;
   loteLabel: string | null;
@@ -18,16 +20,21 @@ export interface CurrencyMeta {
 }
 
 export const CURRENCIES: CurrencyMeta[] = [
-  { code: "USD", slug: "usd", nome: "Dólar Comercial", lote: 1, loteLabel: null, decimals: 2, color: "#6ee7b7" },
-  { code: "EUR", slug: "eur", nome: "Euro", lote: 1, loteLabel: null, decimals: 2, color: "#60a5fa" },
-  { code: "GBP", slug: "gbp", nome: "Libra Esterlina", lote: 1, loteLabel: null, decimals: 2, color: "#a78bfa" },
-  { code: "BTC", slug: "btc", nome: "Bitcoin", lote: 1, loteLabel: null, decimals: 0, color: "#fb923c" },
-  { code: "CAD", slug: "cad", nome: "Dólar Canadense", lote: 1, loteLabel: null, decimals: 2, color: "#e879f9" },
-  { code: "ARS", slug: "ars", nome: "Peso Argentino", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#7dd3fc" },
-  { code: "JPY", slug: "jpy", nome: "Iene Japonês", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#f9a8d4" },
-  { code: "KRW", slug: "krw", nome: "Won Sul-Coreano", lote: 1000, loteLabel: "Lote de 1000", decimals: 2, color: "#5eead4" },
-  { code: "AUD", slug: "aud", nome: "Dólar Australiano", lote: 1, loteLabel: null, decimals: 2, color: "#fbbf24" },
+  { code: "USD", slug: "usd", nome: "Dólar Comercial", artigo: "o", lote: 1, loteLabel: null, decimals: 2, color: "#6ee7b7" },
+  { code: "EUR", slug: "eur", nome: "Euro", artigo: "o", lote: 1, loteLabel: null, decimals: 2, color: "#60a5fa" },
+  { code: "GBP", slug: "gbp", nome: "Libra Esterlina", artigo: "a", lote: 1, loteLabel: null, decimals: 2, color: "#a78bfa" },
+  { code: "BTC", slug: "btc", nome: "Bitcoin", artigo: "o", lote: 1, loteLabel: null, decimals: 0, color: "#fb923c" },
+  { code: "CAD", slug: "cad", nome: "Dólar Canadense", artigo: "o", lote: 1, loteLabel: null, decimals: 2, color: "#e879f9" },
+  { code: "ARS", slug: "ars", nome: "Peso Argentino", artigo: "o", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#7dd3fc" },
+  { code: "JPY", slug: "jpy", nome: "Iene Japonês", artigo: "o", lote: 100, loteLabel: "Lote de 100", decimals: 2, color: "#f9a8d4" },
+  { code: "KRW", slug: "krw", nome: "Won Sul-Coreano", artigo: "o", lote: 1000, loteLabel: "Lote de 1000", decimals: 2, color: "#5eead4" },
+  { code: "AUD", slug: "aud", nome: "Dólar Australiano", artigo: "o", lote: 1, loteLabel: null, decimals: 2, color: "#fbbf24" },
 ];
+
+/** "do Euro", "da Libra Esterlina" — para títulos e textos. */
+export function deMoeda(meta: CurrencyMeta): string {
+  return `${meta.artigo === "a" ? "da" : "do"} ${meta.nome}`;
+}
 
 export function getCurrency(slugOrCode: string): CurrencyMeta | undefined {
   const q = slugOrCode.toLowerCase();
@@ -154,6 +161,21 @@ export async function fetchDailyHistory(code: string, days: number): Promise<Dai
     });
   }
   return points.reverse();
+}
+
+/**
+ * Série diária com o ponto de hoje vindo da cotação ao vivo. O histórico fica
+ * em cache por 6 h (dias passados não mudam), mas o ponto do dia mudaria por
+ * baixo disso: sem esta troca, o Índice de Humor e as sparklines passavam até
+ * 6 h descrevendo o dólar de ontem.
+ */
+export function withLiveToday(series: DailyPoint[], rate?: Rate): DailyPoint[] {
+  if (!rate) return series;
+  const today = dayKey(new Date(rate.timestamp));
+  return [
+    ...series.filter((p) => p.date !== today),
+    { date: today, timestamp: rate.timestamp, bid: rate.bid, pctChange: rate.pctChange },
+  ];
 }
 
 export interface BovespaQuote {

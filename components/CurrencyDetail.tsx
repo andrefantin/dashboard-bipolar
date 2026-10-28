@@ -1,11 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { CurrencyMeta, DailyPoint } from "@/lib/awesomeapi";
 import { formatBRL, formatPct } from "@/lib/format";
 import PeriodToggle, { type PeriodDays } from "./PeriodToggle";
-import RateChart from "./RateChart";
 import GlassPanel from "./GlassPanel";
+
+// Recharts sob demanda: fora do bundle da rota, o prefetch que a home faz das
+// páginas de moeda não baixa mais o Recharts. O placeholder tem a altura do
+// gráfico (280px), então nada se desloca quando ele chega.
+const RateChart = dynamic(() => import("./RateChart"), {
+  ssr: false,
+  loading: () => (
+    <p className="flex h-[280px] items-center justify-center text-sm text-ink-3" role="status">
+      Carregando gráfico…
+    </p>
+  ),
+});
 
 interface CurrencyDetailProps {
   meta: CurrencyMeta;

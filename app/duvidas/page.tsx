@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Backdrop from "@/components/Backdrop";
 import GlassPanel from "@/components/GlassPanel";
 import JsonLd from "@/components/JsonLd";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Dúvidas sobre o dólar e o câmbio",
   description:
-    "Qual a diferença entre dólar comercial e turismo? Por que o dólar sobe? Como a cotação afeta seu bolso? Respostas diretas para as dúvidas mais comuns sobre câmbio.",
-  alternates: { canonical: "/duvidas" },
-};
+    "Qual a diferença entre dólar comercial e turismo? Por que o dólar sobe? Como o câmbio afeta seu bolso? Respostas diretas, sem economês.",
+  path: "/duvidas",
+  shareImage: true,
+});
 
 // Fonte única: alimenta a página e o schema FAQPage (rich results do Google)
 const FAQS: { q: string; a: string }[] = [

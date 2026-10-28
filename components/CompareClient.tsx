@@ -1,58 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { CURRENCIES, type DailyPoint } from "@/lib/awesomeapi";
-import { formatLongDate, formatNumber, formatPct, formatShortDate } from "@/lib/format";
+import { formatPct } from "@/lib/format";
 import PeriodToggle, { type PeriodDays } from "./PeriodToggle";
 import GlassPanel from "./GlassPanel";
-import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
+import type { CompareRow } from "./CompareChart";
+
+// Recharts só quando há o que desenhar (ver CompareChart). O espaço do
+// gráfico é fixo (320px), então a troca não desloca nada na página.
+const CompareChart = dynamic(() => import("./CompareChart"), {
+  ssr: false,
+  loading: () => (
+    <p className="flex h-full items-center justify-center text-sm text-ink-3" role="status">
+      Carregando gráfico…
+    </p>
+  ),
+});
 
 const MAX_SELECTED = 4;
 const MIN_SELECTED = 2;
 
 type SeriesCache = Record<string, DailyPoint[]>; // chave: `${code}:${days}`
-
-interface MergedRow {
-  date: string;
-  timestamp: number;
-  [code: string]: string | number | null;
-}
-
-function CompareTooltip({
-  active,
-  payload,
-  label,
-  rows,
-}: {
-  active?: boolean;
-  payload?: { dataKey: string; value: number; color: string }[];
-  label?: string;
-  rows: MergedRow[];
-}) {
-  if (!active || !payload?.length || !label) return null;
-  const row = rows.find((r) => r.date === label);
-  return (
-    <div className="glass-raised px-3 py-2 text-sm">
-      <p className="text-xs text-ink-3">
-        {row ? formatLongDate(new Date(row.timestamp)) : label}
-      </p>
-      {payload.map((entry) => (
-        <p key={entry.dataKey} className="tabular" style={{ color: entry.color }}>
-          {entry.dataKey}: {formatNumber(entry.value, 1)}
-        </p>
-      ))}
-    </div>
-  );
-}
 
 export default function CompareClient() {
   const [selected, setSelected] = useState<string[]>(["USD", "EUR"]);
@@ -60,7 +30,6 @@ export default function CompareClient() {
   const [cache, setCache] = useState<SeriesCache>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const missing = selected.filter((code) => !cache[`${code}:${days}`]);
@@ -103,7 +72,7 @@ export default function CompareClient() {
 
   // Normaliza cada série para base 100 no início do período e mescla por data.
   const { rows, summary } = useMemo(() => {
-    const merged = new Map<string, MergedRow>();
+    const merged = new Map<string, CompareRow>();
     const summary: { code: string; nome: string; change: number; color: string }[] = [];
     selected.forEach((code) => {
       const series = cache[`${code}:${days}`];
@@ -112,7 +81,7 @@ export default function CompareClient() {
       if (base <= 0) return;
       for (const p of series) {
         const row =
-          merged.get(p.date) ?? ({ date: p.date, timestamp: p.timestamp } as MergedRow);
+          merged.get(p.date) ?? ({ date: p.date, timestamp: p.timestamp } as CompareRow);
         row[code] = (p.bid / base) * 100;
         merged.set(p.date, row);
       }
@@ -213,44 +182,7 @@ export default function CompareClient() {
           aria-busy={loading}
         >
           {rows.length > 1 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(d: string) => formatShortDate(new Date(`${d}T12:00:00-03:00`))}
-                  tick={{ fill: "var(--color-ink-3)", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  minTickGap={32}
-                />
-                <YAxis
-                  domain={["auto", "auto"]}
-                  tickFormatter={(v: number) => formatNumber(v, 0)}
-                  tick={{ fill: "var(--color-ink-3)", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={40}
-                />
-                <Tooltip
-                  content={<CompareTooltip rows={rows} />}
-                  cursor={{ stroke: "rgba(255,255,255,0.15)" }}
-                />
-                {summary.map((s) => (
-                  <Line
-                    key={s.code}
-                    type="monotone"
-                    dataKey={s.code}
-                    stroke={s.color}
-                    strokeWidth={2}
-                    dot={false}
-                    connectNulls
-                    isAnimationActive={!reducedMotion}
-                    animationDuration={600}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+            <CompareChart rows={rows} series={summary} />
           ) : error ? (
             <p className="flex h-full items-center justify-center text-sm text-ink-2">
               As moedas recusaram-se a ser comparadas. Tente de novo em instantes.

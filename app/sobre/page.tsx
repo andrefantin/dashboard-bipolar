@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import Backdrop from "@/components/Backdrop";
 import GlassPanel from "@/components/GlassPanel";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { PROFILE_URL } from "@/components/Header";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Sobre",
   description:
     "O Dólar Bipolar é um perfil satírico de economia que divulga a cotação do dólar no Bluesky. Conheça o projeto e entenda o que move o câmbio.",
-  alternates: { canonical: "/sobre" },
-};
+  path: "/sobre",
+  shareImage: true,
+});
 
 export default function SobrePage() {
   return (

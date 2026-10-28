@@ -48,15 +48,12 @@ export const metadata: Metadata = {
     "cotação euro",
     "dólar real",
   ],
-  alternates: { canonical: "/" },
+  // canonical, og:url, og:title e og:description são de cada página (lib/seo).
+  // Um canonical aqui seria herdado até pela página 404.
   openGraph: {
     type: "website",
     locale: "pt_BR",
     siteName: "Dólar Bipolar",
-    url: SITE_URL,
-    title: "Cotação do dólar hoje — Dólar Bipolar",
-    description:
-      "Cotação do dólar em tempo real, histórico, notícias e o Índice de Humor do Dólar.",
   },
   twitter: {
     card: "summary_large_image",
@@ -126,12 +123,14 @@ export default function RootLayout({
         <Footer />
         <TabBar />
         <NavigationTransitions />
-        {/* Google Analytics */}
+        {/* Google Analytics depois do load, com a página ociosa: o gtag são
+            ~170 KB e ~380 ms de script que disputavam a primeira pintura no
+            celular (Lighthouse). As visitas continuam contadas. */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ZFJVEXNH6X"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="gtag-init" strategy="afterInteractive">
+        <Script id="gtag-init" strategy="lazyOnload">
           {`window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());

@@ -6,6 +6,7 @@ import {
   fetchBovespa,
   fetchDailyHistory,
   fetchLatestRates,
+  withLiveToday,
   type BovespaQuote,
   type DailyPoint,
   type Rate,
@@ -21,6 +22,7 @@ import NewsExplainer from "@/components/NewsExplainer";
 import RefreshButton from "@/components/RefreshButton";
 import DeltaChip from "@/components/DeltaChip";
 import JsonLd from "@/components/JsonLd";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -38,12 +40,19 @@ export async function generateMetadata(): Promise<Metadata> {
     const usd = rates.find((r) => r.code === "USD");
     if (!usd) throw new Error();
     const price = formatBRL(usd.bid, 2);
-    return {
-      title: { absolute: `Dólar hoje: ${price} — cotação em tempo real | Dólar Bipolar` },
+    return pageMetadata({
+      title: `Dólar hoje: ${price} — cotação em tempo real | Dólar Bipolar`,
+      absolute: true,
       description: `Dólar comercial agora: ${price} (mín ${formatBRL(usd.low, 2)}, máx ${formatBRL(usd.high, 2)} hoje). Euro, libra, bitcoin e mais, com histórico, notícias e o Índice de Humor do Dólar.`,
-    };
+      path: "/",
+    });
   } catch {
-    return {};
+    return pageMetadata({
+      title: "Cotação do dólar hoje — Dólar Bipolar",
+      absolute: true,
+      description: "Cotação do dólar comercial em tempo real, com euro, libra, bitcoin e mais. Histórico, notícias e o Índice de Humor do Dólar.",
+      path: "/",
+    });
   }
 }
 
@@ -57,18 +66,23 @@ export default async function HomePage() {
   ]);
 
   const rates = settled(ratesRes) as Rate[] | null;
-  const usdSeries = settled(usdRes) as DailyPoint[] | null;
+  const usd = rates?.find((r) => r.code === "USD") ?? null;
+  // Ponto de hoje sempre da cotação ao vivo (o histórico é cacheado por 6 h)
+  const usdHistory = settled(usdRes) as DailyPoint[] | null;
+  const usdSeries = usdHistory ? withLiveToday(usdHistory, usd ?? undefined) : null;
   const news = settled(newsRes) as NewsItem[] | null;
   const bovespa = settled(bovespaRes) as BovespaQuote | null;
 
   const sparks = new Map<string, number[]>();
   BOARD_CURRENCIES.forEach((c, i) => {
     const series = settled(sparkRes[i]) as DailyPoint[] | null;
-    if (series) sparks.set(c.code, series.map((p) => p.bid));
+    if (series) {
+      const live = rates?.find((r) => r.code === c.code);
+      sparks.set(c.code, withLiveToday(series, live).map((p) => p.bid));
+    }
   });
 
   const mood = usdSeries && usdSeries.length > 2 ? computeMood(usdSeries) : null;
-  const usd = rates?.find((r) => r.code === "USD") ?? null;
   const updatedAt = rates?.length
     ? formatTime(new Date(Math.max(...rates.map((r) => r.timestamp))))
     : null;

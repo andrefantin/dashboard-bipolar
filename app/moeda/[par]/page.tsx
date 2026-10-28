@@ -6,13 +6,17 @@ import {
   CURRENCIES,
   fetchDailyHistory,
   fetchLatestRates,
+  deMoeda,
   getCurrency,
+  withLiveToday,
 } from "@/lib/awesomeapi";
+import { pageMetadata } from "@/lib/seo";
 import { formatBRL, formatTime } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import Backdrop from "@/components/Backdrop";
 import CurrencyDetail from "@/components/CurrencyDetail";
 import CurrencyIcon from "@/components/CurrencyIcon";
+import CurrencyInsights from "@/components/CurrencyInsights";
 import DeltaChip from "@/components/DeltaChip";
 import GlassPanel from "@/components/GlassPanel";
 import JsonLd from "@/components/JsonLd";
@@ -41,11 +45,11 @@ export async function generateMetadata({
   } catch {
     // sem cotação ao vivo, a descrição estática continua válida
   }
-  return {
-    title: `Cotação do ${meta.nome} hoje (${meta.code})`,
-    description: `${live}Veja a cotação do ${meta.nome} em reais em tempo real, variação do dia e histórico de 7 dias a 1 ano no Dólar Bipolar.`,
-    alternates: { canonical: `/moeda/${meta.slug}` },
-  };
+  return pageMetadata({
+    title: `Cotação ${deMoeda(meta)} hoje (${meta.code})`,
+    description: `${live}Veja a cotação ${deMoeda(meta)} em reais em tempo real, variação do dia e histórico de 7 dias a 1 ano no Dólar Bipolar.`,
+    path: `/moeda/${meta.slug}`,
+  });
 }
 
 export default async function CurrencyPage({
@@ -65,7 +69,8 @@ export default async function CurrencyPage({
     ratesRes.status === "fulfilled"
       ? ratesRes.value.find((r) => r.code === meta.code)
       : undefined;
-  const series = historyRes.status === "fulfilled" ? historyRes.value : [];
+  // Ponto de hoje da cotação ao vivo (o histórico é cacheado por 6 h)
+  const series = withLiveToday(historyRes.status === "fulfilled" ? historyRes.value : [], rate);
 
   return (
     <>
@@ -96,7 +101,7 @@ export default async function CurrencyPage({
               price: rate.bid,
               priceCurrency: "BRL",
             },
-            name: `Cotação do ${meta.nome} (${meta.code}/BRL)`,
+            name: `Cotação ${deMoeda(meta)} (${meta.code}/BRL)`,
           }}
         />
       )}
@@ -166,6 +171,8 @@ export default async function CurrencyPage({
           </p>
         </GlassPanel>
       )}
+
+      <CurrencyInsights meta={meta} rate={rate} series={series} />
     </>
   );
 }

@@ -1,37 +1,39 @@
-import { ImageResponse } from "next/og";
+import { fetchDailyHistory, fetchLatestRates, withLiveToday } from "@/lib/awesomeapi";
+import { formatBRL } from "@/lib/format";
+import { computeMood, type MoodId } from "@/lib/mood";
+import { OG_SIZE, renderOgCard } from "@/lib/ogCard";
 
-export const alt = "Dólar Bipolar — cotação do dólar hoje";
-export const size = { width: 1200, height: 630 };
+// Cartão de compartilhamento da home (e fallback das páginas sem o seu):
+// cotação do dólar ao vivo + o humor do dia, na cor do humor.
+
+export const alt = "Cotação do dólar hoje e o Índice de Humor do Dólar — Dólar Bipolar";
+export const size = OG_SIZE;
 export const contentType = "image/png";
+export const revalidate = 300; // mesmo ritmo das cotações
 
-export default function OpengraphImage() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: 80,
-          background:
-            "radial-gradient(ellipse 60% 50% at 30% 10%, rgba(52,211,153,0.25), transparent), linear-gradient(180deg, #0b1210, #101a16)",
-          color: "#e8edea",
-          fontFamily: "sans-serif",
-        }}
-      >
-        <div style={{ fontSize: 30, color: "#9db2a8", letterSpacing: 4 }}>
-          ÍNDICE DE HUMOR DO DÓLAR
-        </div>
-        <div style={{ fontSize: 96, fontWeight: 700, marginTop: 12 }}>
-          Dólar Bipolar
-        </div>
-        <div style={{ fontSize: 38, color: "#34d399", marginTop: 16 }}>
-          Cotação do dólar hoje — câmbio em tempo real, humor incluso.
-        </div>
-      </div>
-    ),
-    size
-  );
+const MOOD_COLOR: Record<MoodId, string> = {
+  mania: "#f5b04c",
+  agitado: "#f5b04c",
+  estavel: "#34d399",
+  baixa: "#8fa8ba",
+  depressivo: "#8fa8ba",
+};
+
+export default async function OpengraphImage() {
+  const [ratesRes, historyRes] = await Promise.allSettled([
+    fetchLatestRates(),
+    fetchDailyHistory("USD", 31),
+  ]);
+  const usd = ratesRes.status === "fulfilled" ? ratesRes.value.find((r) => r.code === "USD") : undefined;
+  const history = historyRes.status === "fulfilled" ? historyRes.value : [];
+  const series = withLiveToday(history, usd);
+  const mood = series.length > 2 ? computeMood(series) : null;
+
+  return renderOgCard({
+    overline: "Cotação do dólar hoje",
+    price: usd ? formatBRL(usd.bid, 2) : null,
+    pct: usd?.pctChange ?? null,
+    footnote: mood ? `Humor do dólar: ${mood.label}` : undefined,
+    accent: mood ? MOOD_COLOR[mood.id] : undefined,
+  });
 }

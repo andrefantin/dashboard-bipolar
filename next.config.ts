@@ -1,4 +1,15 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { NextConfig } from "next";
+
+// Variantes do mascote por humor (public/mascote/humor-{humor}.webp|png),
+// listadas no build e embutidas via env. Na Vercel, as funções que regeneram
+// as páginas (ISR) não enxergam public/, então checar o arquivo em runtime
+// faria a variante sumir na primeira revalidação.
+const mascotDir = path.join(process.cwd(), "public", "mascote");
+const moodMascots = fs.existsSync(mascotDir)
+  ? fs.readdirSync(mascotDir).filter((f) => /^humor-(mania|agitado|estavel|baixa|depressivo)\.(webp|png)$/.test(f))
+  : [];
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -55,6 +66,7 @@ const v1Redirects = Object.entries(V1_PAGES).flatMap(([page, destination]) =>
 const nextConfig: NextConfig = {
   // Não anunciar o framework (x-powered-by: Next.js)
   poweredByHeader: false,
+  env: { MOOD_MASCOTS: moodMascots.join(",") },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

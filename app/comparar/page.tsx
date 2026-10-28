@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Backdrop from "@/components/Backdrop";
 import CompareClient from "@/components/CompareClient";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Comparar moedas",
   description:
     "Compare o desempenho do dólar, euro e outras moedas frente ao real, normalizado em base 100, de 7 dias a 1 ano.",
-  alternates: { canonical: "/comparar" },
-};
+  path: "/comparar",
+  shareImage: true,
+});
 
 export default function CompararPage() {
   return (

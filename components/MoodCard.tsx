@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import Image from "next/image";
 import type { MoodResult } from "@/lib/mood";
 import type { DailyPoint } from "@/lib/awesomeapi";
@@ -13,13 +11,16 @@ interface MoodCardProps {
 }
 
 /** Mascote de corpo inteiro do card. Uma variante por humor entra sozinha ao
- *  existir em public/mascote/humor-{mood}.webp (ou .png); até lá, humor.webp
- *  serve para os cinco. As imagens vão recortadas rente à figura, sem margem
+ *  existir em public/mascote/humor-{mood}.webp (ou .png) no próximo deploy (a
+ *  lista é montada no build, ver next.config); até lá, humor.webp serve para
+ *  os cinco. As imagens vão recortadas rente à figura, sem margem
  *  transparente, para alinharem com a grade do card. */
+const MOOD_MASCOTS = (process.env.MOOD_MASCOTS ?? "").split(",").filter(Boolean);
+
 function mascotSrc(moodId: string): string {
   for (const ext of ["webp", "png"]) {
     const file = `humor-${moodId}.${ext}`;
-    if (fs.existsSync(path.join(process.cwd(), "public", "mascote", file))) return `/mascote/${file}`;
+    if (MOOD_MASCOTS.includes(file)) return `/mascote/${file}`;
   }
   return "/mascote/humor.webp";
 }
@@ -74,7 +75,7 @@ export default function MoodCard({ mood, series }: MoodCardProps) {
           </dd>
         </dl>
         {bids.length > 1 && (
-          <span aria-label="Evolução do dólar nos últimos 30 dias">
+          <span role="img" aria-label="Evolução do dólar nos últimos 30 dias">
             <Sparkline data={bids} width={96} height={30} />
           </span>
         )}

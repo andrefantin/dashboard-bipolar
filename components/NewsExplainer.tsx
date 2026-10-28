@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
 import { BorderBeam } from "border-beam";
 import {
@@ -67,6 +67,19 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [hasOpened, setHasOpened] = useState(false);
+  // O feixe só liga depois do load, com a página ociosa: o loop dele repinta
+  // a cada quadro e não deve disputar a primeira pintura (Lighthouse).
+  const [beamReady, setBeamReady] = useState(false);
+  useEffect(() => {
+    const start = () => {
+      // Safari só ganhou requestIdleCallback no 18.4; antes, um atraso curto basta
+      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => setBeamReady(true));
+      else window.setTimeout(() => setBeamReady(true), 200);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => window.removeEventListener("load", start);
+  }, []);
   const reducedMotion = usePrefersReducedMotion();
 
   const buckets = useMemo(() => groupNewsByDay(news), [news]);
@@ -233,7 +246,7 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
         duration={3.2}
         theme="dark"
         borderRadius={16}
-        active={!hasOpened}
+        active={beamReady && !hasOpened}
         className="w-full shrink-0 md:w-auto md:self-start"
         style={{ boxShadow: "0 8px 32px rgba(0, 0, 0, 0.35)" }}
       >
