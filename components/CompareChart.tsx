@@ -41,7 +41,7 @@ function CompareTooltip({
   if (!active || !payload?.length || !label) return null;
   const row = rows.find((r) => r.date === label);
   return (
-    <div className="glass-raised px-3 py-2 text-sm">
+    <div className="chart-tooltip px-3 py-2 text-sm">
       <p className="text-xs text-ink-3">
         {row ? formatLongDate(new Date(row.timestamp)) : label}
       </p>

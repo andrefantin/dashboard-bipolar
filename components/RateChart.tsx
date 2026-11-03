@@ -51,7 +51,7 @@ function ChartTooltip({
   if (!active || !payload?.length) return null;
   const row = payload[0].payload;
   return (
-    <div className="glass-raised px-3 py-2 text-sm">
+    <div className="chart-tooltip px-3 py-2 text-sm">
       <p className="text-xs text-ink-3">{formatLongDate(new Date(row.timestamp))}</p>
       <p className="tabular font-medium">
         {unit === "pontos" ? formatPoints(row.value) : formatBRL(row.value, decimals)}

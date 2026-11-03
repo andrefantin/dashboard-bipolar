@@ -178,6 +178,17 @@ body {
   );
 }
 
+/* Tooltip dos gráficos: superfície quase opaca, não vidro. Ele fica dentro de
+   um painel de vidro, e o Safari do iOS não desenha um backdrop-filter dentro
+   de outro: o vidro saía transparente, com as linhas do gráfico nítidas por
+   trás dos números. */
+.chart-tooltip {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(19, 30, 26, 0.96);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
 /* ————— Barra de abas flutuante (celular) —————
    Cápsula de vidro solta das bordas, como a barra de abas do iOS 26:
    o conteúdo rola por trás e aparece desfocado. */
