@@ -281,7 +281,7 @@ export default function NewsExplainer({ news, series, newsFailed = false }: News
           <span className="h-[5px] w-9 rounded-full bg-white/25" />
         </div>
         {hasOpened && (
-        <div className="max-h-[85dvh] overflow-y-auto px-5 pb-5 pt-1 md:p-6">
+        <div className="max-h-[min(85dvh,calc(100dvh-var(--top-inset)-1.5rem-env(safe-area-inset-bottom)))] overflow-y-auto px-5 pb-5 pt-1 md:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-ink-3">

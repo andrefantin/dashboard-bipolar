@@ -49,6 +49,23 @@
   --font-body: var(--font-satoshi);
 }
 
+/* Layout: distância do topo da tela até onde o conteúdo pode começar.
+   No iOS 26, o web app aberto da tela de início (standalone) ganha um
+   desfoque do sistema numa faixa no topo, a área segura + ~20–25pt, que o
+   site não consegue desligar. --status-clear empurra o conteúdo para baixo
+   dessa faixa; no Safari fica 0 e nada muda. Os fundos (o da barra superior)
+   continuam indo até a borda; só o conteúdo desce. Se 24px não bastar no
+   aparelho, é só este valor que sobe. */
+:root {
+  --status-clear: 0px;
+  --top-inset: calc(env(safe-area-inset-top) + var(--status-clear));
+}
+@media (display-mode: standalone) {
+  :root {
+    --status-clear: 24px;
+  }
+}
+
 :root {
   /* Glows do pano de fundo — o "anel de humor" da página */
   --glow-a: rgba(52, 211, 153, 0.14);
@@ -374,7 +391,8 @@ dialog.sheet {
     margin: auto 0 0;
     width: 100%;
     max-width: 100%;
-    max-height: 92dvh;
+    /* o topo do sheet não sobe para baixo da faixa do sistema (--top-inset) */
+    max-height: min(92dvh, calc(100dvh - var(--top-inset)));
     border-radius: 20px 20px 0 0;
     padding-bottom: env(safe-area-inset-bottom);
   }

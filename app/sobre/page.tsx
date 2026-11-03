@@ -98,7 +98,7 @@ export default function SobrePage() {
           </ul>
         </GlassPanel>
 
-        <GlassPanel id="contato" className="space-y-3 p-6 text-ink-2 scroll-mt-24">
+        <GlassPanel id="contato" className="space-y-3 p-6 text-ink-2 scroll-mt-[calc(6rem+var(--top-inset))]">
           <h2 className="font-display text-title3 font-medium text-ink">Contato</h2>
           <p>O jeito mais rápido de falar com o Dólar Bipolar é pelos perfis:</p>
           <ul className="space-y-1">

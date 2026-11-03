@@ -16,7 +16,7 @@ const NAV = [
 
 export default function Header() {
   return (
-    <header className="site-header sticky top-0 z-20 border-b border-white/5 bg-bg/75 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-20 border-b border-white/5 bg-bg/75 pt-[var(--top-inset)] backdrop-blur-xl">
       <div className="relative mx-auto flex h-[52px] max-w-6xl items-center gap-3 px-4 sm:px-6">
         <TransitionLink nav="tab" href="/" className="flex shrink-0 items-center gap-2" aria-label="Dólar Bipolar: início">
           <Image
