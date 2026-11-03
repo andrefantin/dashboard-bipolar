@@ -1,13 +1,21 @@
-import type { BovespaQuote } from "@/lib/awesomeapi";
+import type { BovespaQuote } from "@/lib/ibovespa";
 import { formatNumber } from "@/lib/format";
 import CurrencyIcon from "./CurrencyIcon";
 import DeltaChip from "./DeltaChip";
+import TransitionLink from "./TransitionLink";
 
-/** Linha opcional do índice — só é renderizada quando o brapi.dev respondeu.
- *  Mesma anatomia do RateRow (separador `.row-sep` depois do ícone). */
+/** Linha do índice — só é renderizada quando há pontuação. Mesma anatomia
+ *  do RateRow (separador `.row-sep` depois do ícone) e, como ele, abre a
+ *  página de detalhe. */
 export default function BovespaRow({ quote }: { quote: BovespaQuote }) {
   return (
-    <div className="flex items-center gap-3 pl-4">
+    <TransitionLink
+      nav="push"
+      data-row="ibovespa"
+      href="/ibovespa"
+      className="flex items-center gap-3 pl-4 transition-colors active:bg-white/[0.06] md:hover:bg-white/[0.04]"
+      aria-label="Ibovespa: ver detalhes e as ações do índice"
+    >
       <CurrencyIcon code="IBOV" color="#d6dee2" />
       <span className="row-sep flex min-w-0 flex-1 items-center gap-3 border-t border-white/[0.07] py-3 pr-4">
         <span className="min-w-0 flex-1">
@@ -19,6 +27,6 @@ export default function BovespaRow({ quote }: { quote: BovespaQuote }) {
           <DeltaChip pct={quote.pctChange} solid goodWhen="up" />
         </span>
       </span>
-    </div>
+    </TransitionLink>
   );
 }

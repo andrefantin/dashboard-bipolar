@@ -18,6 +18,11 @@ export function formatNumber(value: number, decimals = 2): string {
   }).format(value);
 }
 
+/** Pontuação de índice: "165.305 pts". */
+export function formatPoints(value: number): string {
+  return `${formatNumber(value, 0)} pts`;
+}
+
 /** "+0,45%" / "−1,20%" — sinal sempre explícito. */
 export function formatPct(value: number, decimals = 2): string {
   const formatted = new Intl.NumberFormat("pt-BR", {

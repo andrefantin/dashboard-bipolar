@@ -12,13 +12,15 @@ import {
 } from "recharts";
 import { IconPointFilled } from "@tabler/icons-react";
 import type { DailyPoint } from "@/lib/awesomeapi";
-import { formatBRL, formatLongDate, formatNumber, formatShortDate } from "@/lib/format";
+import { formatBRL, formatLongDate, formatNumber, formatPoints, formatShortDate } from "@/lib/format";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 interface RateChartProps {
   data: DailyPoint[];
   lote?: number;
   decimals?: number;
+  /** reais (moedas) ou pontos (Ibovespa), no tooltip */
+  unit?: "brl" | "pontos";
   height?: number;
   /** datas (yyyy-mm-dd) que ganham marcador clicável no gráfico */
   markerDates?: string[];
@@ -37,11 +39,13 @@ function ChartTooltip({
   active,
   payload,
   decimals,
+  unit,
   hasMarker,
 }: {
   active?: boolean;
   payload?: { payload: Row }[];
   decimals: number;
+  unit: "brl" | "pontos";
   hasMarker: (date: string) => boolean;
 }) {
   if (!active || !payload?.length) return null;
@@ -49,7 +53,9 @@ function ChartTooltip({
   return (
     <div className="glass-raised px-3 py-2 text-sm">
       <p className="text-xs text-ink-3">{formatLongDate(new Date(row.timestamp))}</p>
-      <p className="tabular font-medium">{formatBRL(row.value, decimals)}</p>
+      <p className="tabular font-medium">
+        {unit === "pontos" ? formatPoints(row.value) : formatBRL(row.value, decimals)}
+      </p>
       {hasMarker(row.date) && (
         <p className="mt-0.5 flex items-center gap-1 text-xs text-warm">
           <IconPointFilled size={10} aria-hidden="true" />
@@ -64,6 +70,7 @@ export default function RateChart({
   data,
   lote = 1,
   decimals = 2,
+  unit = "brl",
   height = 240,
   markerDates,
   selectedDate,
@@ -127,7 +134,7 @@ export default function RateChart({
             width={54}
           />
           <Tooltip
-            content={<ChartTooltip decimals={decimals} hasMarker={(d) => markerSet.has(d)} />}
+            content={<ChartTooltip decimals={decimals} unit={unit} hasMarker={(d) => markerSet.has(d)} />}
             cursor={{ stroke: "rgba(255,255,255,0.15)" }}
           />
           <Area

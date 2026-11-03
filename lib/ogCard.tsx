@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "./site";
-import { isGoodChange } from "./tone";
+import { isGoodChange, type GoodWhen } from "./tone";
 
 // Cartão de compartilhamento (og:image, 1200×630) com a cotação ao vivo —
 // é o que aparece quando alguém posta o link no Bluesky, Twitter ou WhatsApp,
@@ -54,13 +54,15 @@ interface OgCardInput {
   accent?: string;
   /** PNG da figura em public/mascote (ex.: "humor-og-furioso.png"); sem ele, a padrão */
   mascot?: string;
+  /** direção boa para o leitor (ver lib/tone); "up" só no Ibovespa */
+  goodWhen?: GoodWhen;
 }
 
-export async function renderOgCard({ overline, price, pct, footnote, accent = POS, mascot: mascotFile }: OgCardInput) {
+export async function renderOgCard({ overline, price, pct, footnote, accent = POS, mascot: mascotFile, goodWhen = "down" }: OgCardInput) {
   const mascot = await mascotDataUrl(mascotFile);
   const up = (pct ?? 0) >= 0;
   // Cor pelo leitor (moeda mais barata = verde), como no site; ver lib/tone
-  const good = isGoodChange(pct ?? 0);
+  const good = isGoodChange(pct ?? 0, goodWhen);
   const pctText =
     pct === null
       ? null

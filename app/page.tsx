@@ -3,14 +3,13 @@ import TransitionLink from "@/components/TransitionLink";
 import { IconChevronRight } from "@tabler/icons-react";
 import {
   CURRENCIES,
-  fetchBovespa,
   fetchDailyHistory,
   fetchLatestRates,
   withLiveToday,
-  type BovespaQuote,
   type DailyPoint,
   type Rate,
 } from "@/lib/awesomeapi";
+import { fetchBovespa, type BovespaQuote } from "@/lib/ibovespa";
 import { fetchNews, type NewsItem } from "@/lib/news";
 import { computeMood } from "@/lib/mood";
 import { formatBRL, formatTime } from "@/lib/format";

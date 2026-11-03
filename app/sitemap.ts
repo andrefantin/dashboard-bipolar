@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return [
     { url: BASE, lastModified: now, changeFrequency: "hourly", priority: 1 },
+    { url: `${BASE}/ibovespa`, lastModified: now, changeFrequency: "hourly", priority: 0.7 },
     { url: `${BASE}/comparar`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE}/duvidas`, lastModified: CONTENT_UPDATED, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/sobre`, lastModified: CONTENT_UPDATED, changeFrequency: "monthly", priority: 0.5 },

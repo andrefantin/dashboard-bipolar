@@ -177,37 +177,3 @@ export function withLiveToday(series: DailyPoint[], rate?: Rate): DailyPoint[] {
     { date: today, timestamp: rate.timestamp, bid: rate.bid, pctChange: rate.pctChange },
   ];
 }
-
-export interface BovespaQuote {
-  points: number;
-  pctChange: number;
-  timestamp: number;
-}
-
-/** Índice Bovespa via brapi.dev — opcional. Sem BRAPI_TOKEN (ou com erro),
- *  retorna null e o card simplesmente não aparece. */
-export async function fetchBovespa(): Promise<BovespaQuote | null> {
-  const token = process.env.BRAPI_TOKEN;
-  if (!token) return null;
-  try {
-    // Token no header (recomendação da própria brapi), fora da URL e dos logs.
-    const res = await fetch("https://brapi.dev/api/quote/%5EBVSP", {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: REVALIDATE_RATES },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as {
-      results?: { regularMarketPrice?: number; regularMarketChangePercent?: number; regularMarketTime?: string }[];
-    };
-    const q = data.results?.[0];
-    if (!q || typeof q.regularMarketPrice !== "number") return null;
-    return {
-      points: q.regularMarketPrice,
-      pctChange: q.regularMarketChangePercent ?? 0,
-      timestamp: q.regularMarketTime ? new Date(q.regularMarketTime).getTime() : Date.now(),
-    };
-  } catch {
-    return null;
-  }
-}

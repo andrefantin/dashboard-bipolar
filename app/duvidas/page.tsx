@@ -37,11 +37,15 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "O que é o Índice de Humor do Dólar?",
-    a: "É a assinatura do Dólar Bipolar: um termômetro satírico calculado com estatística de verdade. Medimos a volatilidade dos últimos 30 dias (desvio-padrão das variações diárias) e a variação de hoje, e traduzimos o resultado em cinco humores — de 'Em surto de alta' a 'Caindo e chorando'. É diagnóstico de brincadeira sobre dados reais.",
+    a: "É a assinatura do Dólar Bipolar: um termômetro satírico calculado com estatística de verdade. Medimos a volatilidade dos últimos 30 dias (desvio-padrão das variações diárias) e a variação de hoje, e traduzimos o resultado em seis humores, do ponto de vista de quem ganha em real — de 'Em êxtase com o real', quando o dólar despenca, a 'Furioso, evite contato', quando ele dispara. É diagnóstico de brincadeira sobre dados reais.",
+  },
+  {
+    q: "O que é o Ibovespa?",
+    a: "É o principal índice da bolsa brasileira, a B3: uma carteira teórica com as ações mais negociadas do país, medida em pontos. Ele costuma andar no sentido oposto ao do dólar — quando o estrangeiro traz dinheiro para a bolsa, o real se fortalece. A pontuação do dia, as ações que mais sobem e caem e o peso de cada empresa estão na página do Ibovespa.",
   },
   {
     q: "De onde vêm os dados deste site?",
-    a: "As cotações vêm da AwesomeAPI, atualizadas ao longo de todo o pregão, e o histórico diário cobre até 1 ano por moeda. As manchetes vêm do Google Notícias, sempre com crédito e link para o veículo original. Nada de dado inventado — só a interpretação é que é bipolar.",
+    a: "As cotações vêm da AwesomeAPI, atualizadas ao longo de todo o pregão, e o histórico diário cobre até 1 ano por moeda. O Ibovespa vem da B3 (carteira e fechamentos oficiais) e da brapi.dev (cotações das ações). As manchetes vêm do Google Notícias, sempre com crédito e link para o veículo original. Nada de dado inventado — só a interpretação é que é bipolar.",
   },
   {
     q: "O dólar vai subir ou cair?",

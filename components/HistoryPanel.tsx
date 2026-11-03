@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { CurrencyMeta, DailyPoint } from "@/lib/awesomeapi";
-import { formatBRL, formatPct } from "@/lib/format";
-import { isGoodChange } from "@/lib/tone";
+import type { DailyPoint } from "@/lib/awesomeapi";
+import { formatBRL, formatNumber, formatPct } from "@/lib/format";
+import { isGoodChange, type GoodWhen } from "@/lib/tone";
 import PeriodToggle, { type PeriodDays } from "./PeriodToggle";
 import GlassPanel from "./GlassPanel";
 
@@ -20,13 +20,31 @@ const RateChart = dynamic(() => import("./RateChart"), {
   ),
 });
 
-interface CurrencyDetailProps {
-  meta: CurrencyMeta;
+interface HistoryPanelProps {
+  /** rota que devolve { series } para ?days= (ex.: /api/history/eur) */
+  historyPath: string;
   initialSeries: DailyPoint[];
   initialDays: PeriodDays;
+  /** multiplicador do valor exibido (moedas cotadas em lote) */
+  lote?: number;
+  decimals?: number;
+  /** reais (moedas) ou pontos (Ibovespa) */
+  unit?: "brl" | "pontos";
+  /** direção boa para o leitor, que colore a variação do período (ver lib/tone) */
+  goodWhen?: GoodWhen;
 }
 
-export default function CurrencyDetail({ meta, initialSeries, initialDays }: CurrencyDetailProps) {
+/** Histórico com seletor de período, mínima/máxima/variação e gráfico. Serve
+ *  às moedas e ao Ibovespa. */
+export default function HistoryPanel({
+  historyPath,
+  initialSeries,
+  initialDays,
+  lote = 1,
+  decimals = 2,
+  unit = "brl",
+  goodWhen = "down",
+}: HistoryPanelProps) {
   const [days, setDays] = useState<PeriodDays>(initialDays);
   const [cache, setCache] = useState<Partial<Record<PeriodDays, DailyPoint[]>>>({
     [initialDays]: initialSeries,
@@ -40,7 +58,7 @@ export default function CurrencyDetail({ meta, initialSeries, initialDays }: Cur
     requested.current.add(days);
     setLoading(true);
     setError(false);
-    fetch(`/api/history/${meta.slug}?days=${days}`)
+    fetch(`${historyPath}?days=${days}`)
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json() as Promise<{ series: DailyPoint[] }>;
@@ -51,14 +69,16 @@ export default function CurrencyDetail({ meta, initialSeries, initialDays }: Cur
         setError(true);
       })
       .finally(() => setLoading(false));
-  }, [days, meta.slug]);
+  }, [days, historyPath]);
 
   const series = cache[days];
+  // pontos sem o "pts": a coluna é estreita e o painel já diz o que é
+  const format = (v: number) => (unit === "pontos" ? formatNumber(v, 0) : formatBRL(v, decimals));
   const stats =
     series && series.length > 1
       ? {
-          min: Math.min(...series.map((p) => p.bid)) * meta.lote,
-          max: Math.max(...series.map((p) => p.bid)) * meta.lote,
+          min: Math.min(...series.map((p) => p.bid)) * lote,
+          max: Math.max(...series.map((p) => p.bid)) * lote,
           variation: ((series[series.length - 1].bid - series[0].bid) / series[0].bid) * 100,
         }
       : null;
@@ -76,16 +96,16 @@ export default function CurrencyDetail({ meta, initialSeries, initialDays }: Cur
         <dl className="mt-4 flex divide-x divide-white/5 text-sm">
           <div className="pr-6">
             <dt className="text-xs text-ink-3">Mínima</dt>
-            <dd className="tabular mt-0.5">{formatBRL(stats.min, meta.decimals)}</dd>
+            <dd className="tabular mt-0.5">{format(stats.min)}</dd>
           </div>
           <div className="px-6">
             <dt className="text-xs text-ink-3">Máxima</dt>
-            <dd className="tabular mt-0.5">{formatBRL(stats.max, meta.decimals)}</dd>
+            <dd className="tabular mt-0.5">{format(stats.max)}</dd>
           </div>
           <div className="pl-6">
             <dt className="text-xs text-ink-3">Variação</dt>
             <dd
-              className={`tabular mt-0.5 ${isGoodChange(stats.variation) ? "text-pos" : "text-neg"}`}
+              className={`tabular mt-0.5 ${isGoodChange(stats.variation, goodWhen) ? "text-pos" : "text-neg"}`}
             >
               {formatPct(stats.variation)}
             </dd>
@@ -95,7 +115,7 @@ export default function CurrencyDetail({ meta, initialSeries, initialDays }: Cur
 
       <div className={`mt-4 transition-opacity ${loading ? "opacity-50" : ""}`} aria-busy={loading}>
         {series && series.length > 1 ? (
-          <RateChart data={series} lote={meta.lote} decimals={meta.decimals} height={280} />
+          <RateChart data={series} lote={lote} decimals={decimals} unit={unit} height={280} />
         ) : error ? (
           <p className="py-10 text-center text-sm text-ink-2">
             O histórico recusou-se a responder. Tentando de novo pode funcionar.

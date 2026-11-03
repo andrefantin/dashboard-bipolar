@@ -14,7 +14,7 @@ import { pageMetadata } from "@/lib/seo";
 import { formatBRL, formatTime } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import Backdrop from "@/components/Backdrop";
-import CurrencyDetail from "@/components/CurrencyDetail";
+import HistoryPanel from "@/components/HistoryPanel";
 import CurrencyIcon from "@/components/CurrencyIcon";
 import CurrencyInsights from "@/components/CurrencyInsights";
 import DeltaChip from "@/components/DeltaChip";
@@ -163,7 +163,13 @@ export default async function CurrencyPage({
       </section>
 
       {series.length > 1 ? (
-        <CurrencyDetail meta={meta} initialSeries={series} initialDays={30} />
+        <HistoryPanel
+          historyPath={`/api/history/${meta.slug}`}
+          initialSeries={series}
+          initialDays={30}
+          lote={meta.lote}
+          decimals={meta.decimals}
+        />
       ) : (
         <GlassPanel className="p-6">
           <p className="text-ink-2">
