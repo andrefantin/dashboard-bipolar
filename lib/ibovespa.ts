@@ -166,22 +166,35 @@ async function fetchOfficialQuote(): Promise<BovespaQuote | null> {
   };
 }
 
+/** Peso máximo (em % do índice) das ações sem cotação para ainda calcular.
+ *  A brapi às vezes deixa uma ação de fora da lista por alguns minutos; sem
+ *  tolerância, a pontuação sumia do site (e a linha da home junto). */
+const MAX_PESO_SEM_COTACAO = 3;
+
 /** Σ(preço × quantidade teórica) ÷ redutor, agora e no fechamento anterior
- *  (preço ÷ (1 + variação)). Só com a carteira inteira cotada: faltando uma
- *  ação, o número sairia errado, e aí é melhor não mostrar. */
+ *  (preço ÷ (1 + variação)). Ação sem cotação conta como estável no dia: o
+ *  peso da B3 é calculado no fechamento anterior, então ele dá o valor dela
+ *  ontem. Até 3% do índice sem cotação, o erro fica em ~0,2% no pior caso
+ *  (testado tirando cada ação); acima disso, melhor não mostrar. */
 function computeQuote(portfolio: Portfolio, prices: Map<string, ListedStock>): BovespaQuote | null {
   let now = 0;
   let prev = 0;
+  let pesoSemCotacao = 0;
   for (const m of portfolio.members) {
     const p = prices.get(m.ticker);
-    if (!p) return null;
+    if (!p) {
+      pesoSemCotacao += m.peso;
+      continue;
+    }
     now += p.close * m.qtd;
     prev += (p.close / (1 + p.change / 100)) * m.qtd;
   }
-  if (prev <= 0) return null;
+  if (prev <= 0 || pesoSemCotacao > MAX_PESO_SEM_COTACAO) return null;
+  // valor de ontem das que faltam, mantido hoje
+  const semCotacao = (prev / (1 - pesoSemCotacao / 100)) * (pesoSemCotacao / 100);
   return {
-    points: now / portfolio.redutor,
-    pctChange: (now / prev - 1) * 100,
+    points: (now + semCotacao) / portfolio.redutor,
+    pctChange: ((now + semCotacao) / (prev + semCotacao) - 1) * 100,
     timestamp: Date.now(),
     estimated: true,
   };
