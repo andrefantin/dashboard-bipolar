@@ -4,6 +4,7 @@ import TransitionLink from "./TransitionLink";
 import { usePathname } from "next/navigation";
 import {
   IconArrowsDiff,
+  IconCalculator,
   IconChartLine,
   IconHelpCircle,
   IconInfoCircle,
@@ -25,6 +26,7 @@ const TABS: Tab[] = [
     icon: IconChartLine,
     match: (p) => p === "/" || p.startsWith("/moeda"),
   },
+  { href: "/conversor", label: "Converter", icon: IconCalculator, match: (p) => p.startsWith("/conversor") },
   { href: "/comparar", label: "Comparar", icon: IconArrowsDiff, match: (p) => p.startsWith("/comparar") },
   { href: "/duvidas", label: "Dúvidas", icon: IconHelpCircle, match: (p) => p.startsWith("/duvidas") },
   { href: "/sobre", label: "Sobre", icon: IconInfoCircle, match: (p) => p.startsWith("/sobre") },
@@ -57,7 +59,7 @@ export default function TabBar() {
       aria-label="Navegação principal"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+10px)] md:hidden"
     >
-      <ul className="tabbar tabbar-nav pointer-events-auto grid w-full max-w-[22rem] select-none grid-cols-4 gap-1 rounded-full p-1.5">
+      <ul className="tabbar tabbar-nav pointer-events-auto grid w-full max-w-[24rem] select-none grid-cols-5 gap-0.5 rounded-full p-1.5">
         {TABS.map((tab) => {
           const active = tab.match(pathname);
           const TabIcon = tab.icon;

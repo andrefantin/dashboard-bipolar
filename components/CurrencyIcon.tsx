@@ -6,6 +6,7 @@ import {
   IconCurrencyDollarCanadian,
   IconCurrencyEuro,
   IconCurrencyPound,
+  IconCurrencyReal,
   IconCurrencyWon,
   IconCurrencyYen,
   type Icon,
@@ -25,11 +26,12 @@ const ICONS: Record<string, Icon> = {
   JPY: IconCurrencyYen,
   KRW: IconCurrencyWon,
   AUD: IconCurrencyDollarAustralian,
+  BRL: IconCurrencyReal,
   IBOV: IconChartCandle,
 };
 
 interface CurrencyIconProps {
-  /** código da moeda (USD, EUR…) ou "IBOV" */
+  /** código da moeda (USD, EUR, BRL…) ou "IBOV" */
   code: string;
   color: string;
   size?: number;

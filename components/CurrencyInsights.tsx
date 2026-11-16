@@ -1,5 +1,6 @@
 import { CURRENCIES, type CurrencyMeta, type DailyPoint, type Rate } from "@/lib/awesomeapi";
-import { formatBRL, formatPct } from "@/lib/format";
+import { formatBRL, formatCurrency, formatPct } from "@/lib/format";
+import { IconChevronRight } from "@tabler/icons-react";
 import CurrencyIcon from "./CurrencyIcon";
 import TransitionLink from "./TransitionLink";
 
@@ -17,13 +18,6 @@ const UNIDADE: Record<string, { texto: string; plural: boolean }> = {
 
 function unidade(meta: CurrencyMeta) {
   return UNIDADE[meta.code] ?? { texto: `1 ${meta.nome.toLowerCase()}`, plural: false };
-}
-
-/** Valores da moeda estrangeira no formato pt-BR (€ 100,00, JP¥ 1.000).
- *  BTC não é ISO 4217, mas o Intl aceita o código e mostra "BTC 0,001". */
-function formatForeign(amount: number, code: string): string {
-  const opts = code === "BTC" ? { minimumFractionDigits: 2, maximumFractionDigits: 8 } : {};
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: code, ...opts }).format(amount);
 }
 
 /** Quantias da tabela "moeda → real": múltiplos do lote; frações no bitcoin. */
@@ -114,17 +108,25 @@ export default function CurrencyInsights({
             <ConversionTable
               caption={`Conversão de ${nome} para real`}
               heading={[meta.nome, "Real"]}
-              rows={foreignAmounts(meta).map((n) => [formatForeign(n, meta.code), formatBRL(n * rate.bid, 2)])}
+              rows={foreignAmounts(meta).map((n) => [formatCurrency(n, meta.code), formatBRL(n * rate.bid, 2)])}
             />
             <ConversionTable
               caption={`Conversão de real para ${nome}`}
               heading={["Real", meta.nome]}
-              rows={REAL_AMOUNTS.map((n) => [formatBRL(n, 2), formatForeign(n / rate.bid, meta.code)])}
+              rows={REAL_AMOUNTS.map((n) => [formatBRL(n, 2), formatCurrency(n / rate.bid, meta.code)])}
             />
           </div>
           <p className="mt-2 text-footnote text-ink-3">
             Pela cotação comercial do momento. Casas de câmbio e cartões cobram spread e IOF à parte.
           </p>
+          <TransitionLink
+            nav="tab"
+            href={`/conversor?de=${meta.slug}&para=brl`}
+            className="mt-1 inline-flex min-h-11 items-center gap-0.5 text-body text-pos transition-opacity active:opacity-60 md:text-sm md:hover:underline"
+          >
+            Outro valor? Abrir no conversor
+            <IconChevronRight size={18} aria-hidden="true" />
+          </TransitionLink>
         </section>
       )}
 

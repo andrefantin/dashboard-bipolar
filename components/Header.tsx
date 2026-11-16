@@ -8,6 +8,7 @@ export const PROFILE_URL = "https://bsky.app/profile/dolarbipolar.com";
 // Só no desktop: no celular a navegação mora na barra de abas inferior (TabBar).
 const NAV = [
   { href: "/", label: "Home" },
+  { href: "/conversor", label: "Conversor" },
   { href: "/comparar", label: "Comparar" },
   { href: "/duvidas", label: "Dúvidas" },
   { href: "/sobre", label: "Sobre" },

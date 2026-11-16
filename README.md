@@ -9,6 +9,7 @@ Dashboard em pt-BR que acompanha o câmbio do real frente às principais moedas 
 - **Painel de cotações** — USD, EUR, GBP, BTC, CAD, ARS (lote de 100), JPY (lote de 100), KRW (lote de 1000) e AUD, com variação do dia e sparkline de 7 dias.
 - **Índice de Humor do Dólar** — seis humores, do ponto de vista do leitor (dólar caindo = feliz), calculados da variação do dia e da volatilidade dos últimos 30 dias ([lib/mood.ts](lib/mood.ts); limiares e legendas editáveis em constantes). O brilho de fundo da página muda de cor com o humor.
 - **"Por que o dólar está assim?"** — manchetes do Google Notícias; dias com variação acima de ±0,7% ganham marcador no gráfico de 30 dias que filtra as manchetes daquele dia.
+- **Conversor** — `/conversor`: real e as moedas do painel, nos dois sentidos, pela cotação comercial; valor e moedas ficam na URL para compartilhar.
 - **Comparação de moedas** — 2 a 4 moedas normalizadas em base 100, períodos de 7d a 1 ano.
 - **Histórico por moeda** — `/moeda/usd`, `/moeda/eur` etc., com mínima/máxima/variação por período.
 - **Ibovespa** — `/ibovespa`: pontuação do dia, maiores altas e baixas entre as ações do índice, o peso de cada empresa, histórico de até 1 ano e um texto sobre o índice.

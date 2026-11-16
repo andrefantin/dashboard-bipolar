@@ -18,6 +18,20 @@ export function formatNumber(value: number, decimals = 2): string {
   }).format(value);
 }
 
+/** Valor numa moeda, no formato pt-BR: "R$ 5,50", "US$ 100,00", "€ 86,20",
+ *  "JP¥ 1.000". BTC não é ISO 4217, mas o Intl aceita o código e mostra
+ *  "BTC 0,001". Com `precise`, valores abaixo de 1 ganham até 4 casas, para
+ *  o iene e o won não virarem "R$ 0,00" no conversor. */
+export function formatCurrency(amount: number, code: string, precise = false): string {
+  const opts =
+    code === "BTC"
+      ? { minimumFractionDigits: 2, maximumFractionDigits: 8 }
+      : precise && amount !== 0 && Math.abs(amount) < 1
+        ? { maximumFractionDigits: 4 }
+        : {};
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: code, ...opts }).format(amount);
+}
+
 /** Pontuação de índice: "165.305 pts". */
 export function formatPoints(value: number): string {
   return `${formatNumber(value, 0)} pts`;
