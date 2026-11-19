@@ -18,13 +18,12 @@ export default function NavTitle() {
     const el = document.querySelector<HTMLElement>("[data-large-title]");
     if (!el) return;
     const text = el.dataset.largeTitle || el.textContent?.trim() || "";
-    // margem negativa = altura da barra: o título "some" quando passa por baixo dela.
-    // No web app da tela de início a barra cresce --status-clear (ver globals.css).
-    const statusClear =
-      parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--status-clear")) || 0;
+    // margem negativa = altura da barra (com a área segura do topo): o título
+    // "some" quando passa por baixo dela.
+    const bar = document.querySelector<HTMLElement>(".site-header")?.offsetHeight || 52;
     const io = new IntersectionObserver(
       ([entry]) => setTitle(entry.isIntersecting ? null : text),
-      { rootMargin: `-${56 + statusClear}px 0px 0px 0px` }
+      { rootMargin: `-${bar + 4}px 0px 0px 0px` }
     );
     io.observe(el);
     return () => io.disconnect();
