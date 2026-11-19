@@ -17,8 +17,12 @@ const NAV = [
 
 export default function Header() {
   return (
-    <header className="site-header sticky top-0 z-20 border-b border-white/5 bg-bg/75 pt-[var(--top-inset)] backdrop-blur-xl">
-      <div className="relative mx-auto flex h-[52px] max-w-6xl items-center gap-3 px-4 sm:px-6">
+    <>
+    {/* Espaçador no fluxo: a barra é fixa, então ele guarda o lugar dela */}
+    {/* (+1px da borda inferior da barra) */}
+    <div aria-hidden="true" className="h-[calc(var(--header-h)+1px)] shrink-0" />
+    <header className="site-header fixed inset-x-0 top-0 z-20 h-[calc(var(--header-h)+1px)] border-b border-white/5 bg-bg pt-[var(--header-top)]">
+      <div className="relative mx-auto flex h-[var(--header-bar)] max-w-6xl items-center gap-3 px-4 sm:px-6">
         <TransitionLink nav="tab" href="/" className="flex shrink-0 items-center gap-2" aria-label="Dólar Bipolar: início">
           <Image
             src="/mascote/default.webp"
@@ -67,5 +71,6 @@ export default function Header() {
         </a>
       </div>
     </header>
+    </>
   );
 }

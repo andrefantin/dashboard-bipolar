@@ -49,21 +49,19 @@
   --font-body: var(--font-satoshi);
 }
 
-/* Layout: distância do topo da tela até onde o conteúdo pode começar.
-   No iOS 26, o web app aberto da tela de início (standalone) ganha um
-   desfoque do sistema numa faixa no topo, a área segura + ~20–25pt, que o
-   site não consegue desligar. --status-clear empurra o conteúdo para baixo
-   dessa faixa; no Safari fica 0 e nada muda. Os fundos (o da barra superior)
-   continuam indo até a borda; só o conteúdo desce. Se 24px não bastar no
-   aparelho, é só este valor que sobe. */
+/* Barra superior: FIXA, OPACA e de borda a borda, colada no topo da tela,
+   por baixo do relógio. No iOS 26 o sistema desfoca o conteúdo comum que
+   passa sob a barra de status, mas quando o topo da página é uma barra fixa
+   opaca ele pinta a barra de status com a cor dela, e o header fica nítido
+   logo abaixo do relógio. (Antes: barra translúcida com desfoque, que caía
+   no desfoque do sistema, e um ajuste que descia tudo 24px no web app.)
+   O fundo é --color-bg = theme-color. Um espaçador no fluxo (Header.tsx)
+   guarda a altura da barra. */
 :root {
-  --status-clear: 0px;
-  --top-inset: calc(env(safe-area-inset-top) + var(--status-clear));
-}
-@media (display-mode: standalone) {
-  :root {
-    --status-clear: 24px;
-  }
+  --top-inset: env(safe-area-inset-top);
+  --header-top: env(safe-area-inset-top);
+  --header-bar: 52px;
+  --header-h: calc(var(--header-bar) + var(--header-top));
 }
 
 :root {
@@ -211,9 +209,9 @@ body {
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* O nome vai no próprio elemento com backdrop-filter: view-transition-name
-   cria uma "backdrop root", e um desfoque num descendente dela passaria a
-   enxergar só o conteúdo dela (o vidro da barra ficaria sem efeito). */
+/* O nome vai no próprio elemento da barra: view-transition-name cria uma
+   "backdrop root", e um desfoque num descendente dela passaria a enxergar
+   só o conteúdo dela. */
 .site-header {
   view-transition-name: site-header;
 }
